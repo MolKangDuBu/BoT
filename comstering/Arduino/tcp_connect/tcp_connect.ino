@@ -9,6 +9,10 @@
 const char* ssid     = STASSID;
 const char* password = STAPSK;
 
+/*TCP 서버 포트*/
+const int tcpPort = 22485;    //  서버로 사용될 포트
+WiFiServer wifiServer(tcpPort);
+
 void setup() {
   /*시리얼 모니터 보드레이트*/
   Serial.begin(115200);
@@ -31,11 +35,26 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
+
+  wifiServer.begin();
+  Serial.println("Server On");
+  Serial.print("Port: ");
+  Serial.println(tcpPort);
 }
 
 void loop() {
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
-  delay(5000);
+  WiFiClient client = wifiServer.available();
+ 
+  if (client) {
+    Serial.println("Client connected");
+    while (client.connected()) {
+      while (client.available()>0) {
+        char c = client.read();
+        Serial.write(c);
+      }
+      delay(10);
+    }
+    client.stop();
+    Serial.println("Client disconnected");
+  }
 }

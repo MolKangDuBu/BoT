@@ -1,0 +1,5 @@
+BoT/application/wallet
+BoT/application/node_modules
+BoT/basic-network/config/*
+BoT/basic-network/crypto-config/*
+BoT/explorer/organizations

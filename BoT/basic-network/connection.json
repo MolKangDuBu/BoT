@@ -15,10 +15,10 @@
     "channels": {
         "mychannel": {
             "orderers": [
-                "orderer.example.com"
+                "orderer.bot.com"
             ],
             "peers": {
-                "peer0.org1.example.com": {}
+                "peer0.org1.bot.com": {}
             }
         }
     },
@@ -26,27 +26,27 @@
         "Org1": {
             "mspid": "Org1MSP",
             "peers": [
-                "peer0.org1.example.com"
+                "peer0.org1.bot.com"
             ],
             "certificateAuthorities": [
-                "ca.example.com"
+                "ca.bot.com"
             ]
         }
     },
     "orderers": {
-        "orderer.example.com": {
+        "orderer.bot.com": {
             "url": "grpc://localhost:7050"
         }
     },
     "peers": {
-        "peer0.org1.example.com": {
+        "peer0.org1.bot.com": {
             "url": "grpc://localhost:7051"
         }
     },
     "certificateAuthorities": {
-        "ca.example.com": {
+        "ca.bot.com": {
             "url": "http://localhost:7054",
-            "caName": "ca.example.com"
+            "caName": "ca.bot.com"
         }
     }
 }

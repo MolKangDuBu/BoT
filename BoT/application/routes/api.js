@@ -76,7 +76,7 @@ async function callChainCode(fnName, isSubmit, ...args) {
     const network = await gateway.getNetwork('mychannel');
 
     // Get the contract from the network.
-    const contract = network.getContract('mycc');
+    const contract = network.getContract('botcc');
 
     let result;
     if(isSubmit) {

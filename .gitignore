@@ -3,3 +3,6 @@ BoT/application/node_modules
 BoT/basic-network/config/*
 BoT/basic-network/crypto-config/*
 BoT/explorer/organizations
+BoT/chaincode/botcc/go/chaincode
+BoT/chaincode/botcc/go/go.mod
+BoT/chaincode/botcc/go/go.sum

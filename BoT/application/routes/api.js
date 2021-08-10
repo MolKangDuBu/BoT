@@ -16,11 +16,51 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-router.get('/cars', async (req, res) => {
-  const result = await callChainCode('queryAllCars', false);
-  res.json(JSON.parse(result));
+router.post('/addUser', async (req, res) => {
+    const args = [req.body.id, req.body.pw, req.body.name, req.body.mail, req.body.phone, req.body.team];
+    try {
+      await callChainCode('addUser', true, ...args);
+      res.status(200).send({ msg: 'addUser_Success' });
+    } catch(err) {
+      console.log(err);
+      res.status(500).send({ msg: 'addUser_Failed'});
+    }
 });
 
+router.post('/login', async (req, res) => {
+    const args = [req.body.id, req.body.pw];
+
+    try {
+        const result = await callChainCode('login', false, ...args);
+        const obj = JSON.parse(result)
+
+        if(req.body.pw == obj.pw) {
+            res.status(200).send({ msg: 'login_Success' });
+        } else {
+            res.status(200).send({ msg: 'login_Failed' });
+        }
+
+    } catch(err) {
+            res.status(400).send(null);
+    }
+});
+
+router.get('/queryAllUsers', async (req, res) => {
+    const result = await callChainCode('queryAllUsers', false);
+    res.json(JSON.parse(result));
+});
+
+router.get('/queryUser', async (req, res) => {
+    const userId = req.query.userId;
+    try {
+      const result = await callChainCode('queryUser', false, userId);
+      res.json(JSON.parse(result));
+    } catch(err) {
+      res.status(400).send(null);
+    }
+});
+
+/*  
 router.get('/cars/:carNo', async (req, res) => {
   const carNo = req.params.carNo;
   try {
@@ -52,6 +92,8 @@ router.put('/cars/:carNo', async (req, res) => {
     res.status(500).send({ msg: 'Failed to submit transaction'});
   }
 });
+*/
+
 
 async function callChainCode(fnName, isSubmit, ...args) {
   try {

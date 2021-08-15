@@ -12,69 +12,26 @@ const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', async (req, res) => {
   res.send('respond with a resource');
 });
 
-router.post('/addUser', async (req, res) => {
-    const args = [req.body.id, req.body.pw, req.body.name, req.body.mail, req.body.phone, req.body.team];
-    try {
-      await callChainCode('addUser', true, ...args);
-      res.status(200).send({ msg: 'addUser_Success' });
-    } catch(err) {
-      console.log(err);
-      res.status(500).send({ msg: 'addUser_Failed'});
-    }
-});
 
-router.post('/login', async (req, res) => {
-    const args = [req.body.id, req.body.pw];
-
-    try {
-        const result = await callChainCode('login', false, ...args);
-        const obj = JSON.parse(result)
-
-        if(req.body.pw == obj.pw) {
-            res.status(200).send({ msg: 'login_Success' });
-        } else {
-            res.status(200).send({ msg: 'login_Failed' });
-        }
-
-    } catch(err) {
-            res.status(400).send(null);
-    }
-});
-
-router.get('/queryAllUsers', async (req, res) => {
-    const result = await callChainCode('queryAllUsers', false);
-    res.json(JSON.parse(result));
-});
-
-router.get('/queryUser', async (req, res) => {
-    const userId = req.query.userId;
-    try {
-      const result = await callChainCode('queryUser', false, userId);
-      res.json(JSON.parse(result));
-    } catch(err) {
-      res.status(400).send(null);
-    }
-});
-
-/*  
-router.get('/cars/:carNo', async (req, res) => {
-  const carNo = req.params.carNo;
+router.post('/addIot', async (req, res) => {
+  const args = [req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.date, req.body.feedback];
   try {
-    const result = await callChainCode('queryCar', false, carNo);
-    res.json(JSON.parse(result));
+    await callChainCode('addIot', true, ...args);
+    res.status(200).send({ msg: 'addIot_Success' });
   } catch(err) {
-    res.status(400).send(null);
+    console.log(err);
+    res.status(500).send({ msg: 'addIot_Failed'});
   }
 });
 
-router.post('/cars', async (req, res) => {
-  const args = [req.body.carNo, req.body.make, req.body.model, req.body.colour, req.body.owner];
+router.post('/lampStateUpdate', async (req, res) => {
+  const args = [req.body.devicekey, req.body.lamp];
   try {
-    await callChainCode('createCar', true, ...args);
+    await callChainCode('lampStateUpdate', true, ...args);
     res.status(200).send({ msg: 'Transaction has been submitted.' });
   } catch(err) {
     console.log(err);
@@ -82,19 +39,34 @@ router.post('/cars', async (req, res) => {
   }
 });
 
-router.put('/cars/:carNo', async (req, res) => {
-  const args = [req.params.carNo, req.body.owner];
+router.post('/gasStateUpdate', async (req, res) => {
+  const args = [req.body.devicekey, req.body.gas];
   try {
-    await callChainCode('changeCarOwner', true, ...args);
+    await callChainCode('gasStateUpdate', true, ...args);
     res.status(200).send({ msg: 'Transaction has been submitted.' });
   } catch(err) {
     console.log(err);
     res.status(500).send({ msg: 'Failed to submit transaction'});
   }
 });
-*/
 
+router.post('/tmpHumStateUpdate', async (req, res) => {
+  const args = [req.body.devicekey, req.body.tmp, req.body.hum];
+  try {
+    await callChainCode('tmpHumStateUpdate', true, ...args);
+    res.status(200).send({ msg: 'Transaction has been submitted.' });
+  } catch(err) {
+    console.log(err);
+    res.status(500).send({ msg: 'Failed to submit transaction'});
+  }
+});
 
+router.get('/queryAllIoTs', async (req, res) => {
+  const result = await callChainCode('queryAllIoTs', false);
+  res.json(JSON.parse(result));
+});
+
+// Call Chaincode
 async function callChainCode(fnName, isSubmit, ...args) {
   try {
     // Create a new file system based wallet for managing identities.
@@ -103,16 +75,16 @@ async function callChainCode(fnName, isSubmit, ...args) {
     console.log(`Wallet path: ${walletPath}`);
 
     // Check to see if we've already enrolled the user.
-    const userExists = await wallet.exists('user1');
+    const userExists = await wallet.exists('user2');
     if (!userExists) {
-        console.log('An identity for the user "user1" does not exist in the wallet');
+        console.log('An identity for the user "user2" does not exist in the wallet');
         console.log('Run the registerUser.js application before retrying');
         return;
     }
 
     // Create a new gateway for connecting to our peer node.
     const gateway = new Gateway();
-    await gateway.connect(ccp, { wallet, identity: 'user1', discovery: { enabled: false } });
+    await gateway.connect(ccp, { wallet, identity: 'user2', discovery: { enabled: false } });
 
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork('mychannel');

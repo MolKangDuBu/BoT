@@ -51,8 +51,9 @@ docker-compose -f ./docker-compose.yml up -d cli
 docker ps -a
 
 # 3. 배포할 체인코드 이름 변경
-docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.bot.com/users/Admin@org1.bot.com/msp" cli peer chaincode install -n botcc -v 1.1 -p "$CC_SRC_PATH" -l "$CC_RUNTIME_LANGUAGE"
-docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.bot.com/users/Admin@org1.bot.com/msp" cli peer chaincode instantiate -o orderer.bot.com:7050 -C mychannel -n botcc -l "$CC_RUNTIME_LANGUAGE" -v 1.1 -c '{"Args":["KEY0", "VALUE0"]}' -P "OR ('Org1MSP.member','Org2MSP.member')"
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.bot.com/users/Admin@org1.bot.com/msp" cli peer chaincode install -n botcc -v 1.0 -p "$CC_SRC_PATH" -l "$CC_RUNTIME_LANGUAGE"
+
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.bot.com/users/Admin@org1.bot.com/msp" cli peer chaincode instantiate -o orderer.bot.com:7050 -C mychannel -n botcc -l "$CC_RUNTIME_LANGUAGE" -v 1.0 -c '{"Args":[]}' -P "OR ('Org1MSP.member','Org2MSP.member')"
 sleep 10
 
 

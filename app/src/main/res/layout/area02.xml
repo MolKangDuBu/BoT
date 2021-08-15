@@ -32,7 +32,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imgbtn_Area02_iot"
+                android:id="@+id/imb_Area02_iot"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginStart="16dp"
@@ -60,7 +60,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/tv_title_Area02" />
 
             <ImageButton
-                android:id="@+id/imgbtn_Area02_thermometer"
+                android:id="@+id/imb_Area02_thermometer"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="10dp"
@@ -92,7 +92,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/imgv_Area02"
+                android:id="@+id/imv_Area02"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="70dp"
@@ -111,7 +111,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imgv_Area02" />
+                app:layout_constraintTop_toBottomOf="@+id/imv_Area02" />
 
             <Switch
                 android:id="@+id/switch_Area02"

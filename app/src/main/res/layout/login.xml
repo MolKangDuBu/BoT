@@ -10,16 +10,17 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:text="Login"
         android:textSize="45dp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/edtv_login_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
@@ -32,40 +33,40 @@
         app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <EditText
-        android:id="@+id/editTextNumberPassword"
+        android:id="@+id/edtv_login_pw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:ems="10"
         android:inputType="numberPassword"
-        app:layout_constraintEnd_toEndOf="@+id/editTextTextPersonName"
-        app:layout_constraintStart_toStartOf="@+id/editTextTextPersonName"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
+        app:layout_constraintEnd_toEndOf="@+id/edtv_login_name"
+        app:layout_constraintStart_toStartOf="@+id/edtv_login_name"
+        app:layout_constraintTop_toBottomOf="@+id/edtv_login_name" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/tv_login_signup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sign up"
         app:layout_constraintBottom_toTopOf="@+id/button"
-        app:layout_constraintStart_toStartOf="@+id/editTextNumberPassword"
-        app:layout_constraintTop_toBottomOf="@+id/editTextNumberPassword" />
+        app:layout_constraintStart_toStartOf="@+id/edtv_login_pw"
+        app:layout_constraintTop_toBottomOf="@+id/edtv_login_pw" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/tv_login_findpw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=" Forgot Password?"
         app:layout_constraintBottom_toTopOf="@+id/button"
-        app:layout_constraintEnd_toEndOf="@+id/editTextNumberPassword"
-        app:layout_constraintTop_toBottomOf="@+id/editTextNumberPassword" />
+        app:layout_constraintEnd_toEndOf="@+id/edtv_login_pw"
+        app:layout_constraintTop_toBottomOf="@+id/edtv_login_pw" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Login"
-        app:layout_constraintEnd_toEndOf="@+id/textView6"
-        app:layout_constraintStart_toStartOf="@+id/textView5"
+        app:layout_constraintEnd_toEndOf="@+id/tv_login_findpw"
+        app:layout_constraintStart_toStartOf="@+id/tv_login_signup"
         tools:layout_editor_absoluteY="380dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

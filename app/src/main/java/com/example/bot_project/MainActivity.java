@@ -4,41 +4,67 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainActivity extends AppCompatActivity {
 
+    public ImageButton Imb_user;
+    public ImageButton Area01;
+    public ImageButton Area02;
+    public ImageButton Area03;
+    public ImageButton Area04;
+    public Intent intent;
 
-    ImageButton Area01;
-    ImageButton Area02;
-    ImageButton Area03;
-    ImageButton Area04;
-    Intent intnet;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        intnet  = new Intent(getApplicationContext(), Area_Main.class);
+        intent = new Intent(this, loading.class);
+        startActivity(intent);
+
+        intent  = new Intent(getApplicationContext(), Area_Main.class);
         Area01 = (ImageButton)findViewById(R.id.imb_Area01);
         Area02 = (ImageButton)findViewById(R.id.imb_Area02);
         Area03 = (ImageButton)findViewById(R.id.imb_Area03);
         Area04 = (ImageButton)findViewById(R.id.imb_Area04);
+        Imb_user = (ImageButton)findViewById(R.id.imb_user);
+
+
+
+
+        if(AppHelper.requestQueue != null) {
+            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
+        } //RequestQueue 생성
 
         //버튼에 따라 다른 인자값을 전달하여 몇번째 Area인지 확인
         Area01.setOnClickListener(new View.OnClickListener() {//Area01
             @Override
             public void onClick(View view) {
-
-                startActivity(intnet);
+              intent.putExtra("number", 1);
+                startActivity(intent);
             }
         });
 
         Area02.setOnClickListener(new View.OnClickListener() {//Area02
             @Override
             public void onClick(View view) {
-
-                startActivity(intnet);
+                intent.putExtra("number", 2);
+                startActivity(intent);
 
             }
         });
@@ -46,20 +72,70 @@ public class MainActivity extends AppCompatActivity {
         Area03.setOnClickListener(new View.OnClickListener() {//Area03
             @Override
             public void onClick(View view) {
-
-                startActivity(intnet);
+                intent.putExtra("number", 3);
+                startActivity(intent);
             }
         });
 
         Area04.setOnClickListener(new View.OnClickListener() {//Area04
             @Override
             public void onClick(View view) {
+                intent.putExtra("number", 4);
+                startActivity(intent);
+            }
+        });
 
-                startActivity(intnet);
+        Imb_user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
     }
 
+
+    private void start() {
+        Log.d("volleytest", "request");
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST, String.valueOf("http://121.153.155.36:3000/api/addUser"),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                            Log.d("volleytest", response.toString());
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                        Log.d("volleytest", "error : "+error.toString());
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("id","왜");
+                params.put("pw","치킨");
+                params.put("name","사");
+                params.put("mail","안");
+                params.put("phone","줘");
+                params.put("team","줘");
+
+                Log.d("volleytest", "ok");
+                return params;
+            }
+        };
+
+
+
+        stringRequest.setShouldCache(false); //이전 결과 있어도 새로 요청하여 응답을 보여준다.
+        AppHelper.requestQueue = Volley.newRequestQueue(this); // requestQueue 초기화 필수
+        AppHelper.requestQueue.add(stringRequest);
+
+    }
 
 
 }

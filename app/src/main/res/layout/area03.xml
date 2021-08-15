@@ -32,7 +32,7 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imgbtn_Area03_iot"
+                android:id="@+id/imb_Area03_iot"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="10dp"
@@ -64,7 +64,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/imgv_Area03"
+                android:id="@+id/imv_Area03"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:layout_marginTop="70dp"
@@ -83,7 +83,7 @@
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/imgv_Area03" />
+                app:layout_constraintTop_toBottomOf="@+id/imv_Area03" />
 
             <Switch
                 android:id="@+id/switch_Area03"

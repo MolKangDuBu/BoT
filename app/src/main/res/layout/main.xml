@@ -30,7 +30,7 @@
                 android:layout_marginStart="50dp"
                 android:layout_marginLeft="50dp"
                 android:text="Smart Factory"
-                android:textSize="24dp"
+                android:textSize="30dp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/imb_user"
                 app:layout_constraintStart_toStartOf="parent"

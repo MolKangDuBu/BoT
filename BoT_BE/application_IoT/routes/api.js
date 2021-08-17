@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 var net = require('net');
 
-const ccpPath = path.resolve(__dirname, '..', '..', 'basic-network', 'connection.json');
+const ccpPath = path.resolve(__dirname, '..', '..', 'basic-network', 'connection_org2.json');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
@@ -41,20 +41,20 @@ router.post('/lampStateUpdate', async (req, res) => {
   const args = [req.body.devicekey, req.body.lamp];
   try {
     await callChainCode('lampStateUpdate', true, ...args);
-    res.status(200).send({ msg: 'Transaction has been submitted.' });
 
     // Arduino lamp connect
     socket.on('connect', function() {
       console.log("on connect");
   
-      setTimeout(() => {
-          socket.write('ON');
-      }, 1000);
-  
-      setTimeout(() => {
+      if(req.body.lamp == 'ON') {
+        setTimeout(() => {
+            socket.write('ON');
+        }, 1000);
+      } else if(req.body.lamp == 'OFF') {
+        setTimeout(() => {
           socket.write('OFF');
-      }, 5000);
-    
+        }, 5000);
+      }      
     });
     socket.on('data', function(data) {
       console.log(data);
@@ -69,6 +69,8 @@ router.post('/lampStateUpdate', async (req, res) => {
       console.log('on error: ', err.code);
     });
   
+    res.status(200).send({ msg: 'Transaction has been submitted.' });
+
   } catch(err) {
     console.log(err);
     res.status(500).send({ msg: 'Failed to submit transaction'});
@@ -139,7 +141,7 @@ async function callChainCode(fnName, isSubmit, ...args) {
     return result;
 
   } catch(err) {
-    console.error(`Failed to create transaction: ${error}`);
+    console.error(`Failed to create transaction: ${err}`);
     return 'error occurred!!!';
   }
 }

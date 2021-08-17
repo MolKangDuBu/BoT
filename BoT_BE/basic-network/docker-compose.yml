@@ -15,7 +15,7 @@ services:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_CA_NAME=ca.bot.com
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.bot.com-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/cb4ba8cbf6f6c9b0a78785f34dd04b33e136c8aa4950b395d318eaf33a793ce1_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/00a8193a81aeb37c7b6fd81905766f8f8ec5061a25b5322e8f422dc062c1f08c_sk
     ports:
       - 7054:7054
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
@@ -43,6 +43,7 @@ services:
         - ./config/:/etc/hyperledger/configtx
         - ./crypto-config/ordererOrganizations/bot.com/orderers/orderer.bot.com/:/etc/hyperledger/msp/orderer
         - ./crypto-config/peerOrganizations/org1.bot.com/peers/peer0.org1.bot.com/:/etc/hyperledger/msp/peerOrg1
+        - ./crypto-config/peerOrganizations/org2.bot.com/peers/peer0.org2.bot.com/:/etc/hyperledger/msp/peerOrg2
     networks:
       - basic
 

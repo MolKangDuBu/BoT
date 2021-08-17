@@ -6,10 +6,19 @@ const router = express.Router();
 const { FileSystemWallet, Gateway } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
+var net = require('net');
 
 const ccpPath = path.resolve(__dirname, '..', '..', 'basic-network', 'connection.json');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
+
+var socket = net.connect({
+  port: 22485,
+  host: "192.168.35.18"
+});
+
+socket.setEncoding('utf8');
+
 
 /* GET users listing. */
 router.get('/', async (req, res) => {
@@ -33,6 +42,33 @@ router.post('/lampStateUpdate', async (req, res) => {
   try {
     await callChainCode('lampStateUpdate', true, ...args);
     res.status(200).send({ msg: 'Transaction has been submitted.' });
+
+    // Arduino lamp connect
+    socket.on('connect', function() {
+      console.log("on connect");
+  
+      setTimeout(() => {
+          socket.write('ON');
+      }, 1000);
+  
+      setTimeout(() => {
+          socket.write('OFF');
+      }, 5000);
+    
+    });
+    socket.on('data', function(data) {
+      console.log(data);
+    });
+
+    socket.on('close', function() {
+      console.log('close');
+    });
+
+
+    socket.on('error', function(err) {
+      console.log('on error: ', err.code);
+    });
+  
   } catch(err) {
     console.log(err);
     res.status(500).send({ msg: 'Failed to submit transaction'});

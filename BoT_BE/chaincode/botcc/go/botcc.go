@@ -36,10 +36,10 @@ type IoT struct {
 	Device	string `json:"device"`
 	UserId		string `json:"userid"`
 	Area	string `json:"area"`
-	Lamp	string `json:"lamp"`
-	Gas		string `json:"gas"`
-	Tmp		string `json:"colour"`
-	Hum		string `json:"hum"`
+	Lamp	bool `json:"lamp"`
+	Gas		float64 `json:"gas"`
+	Tmp		int `json:"tmp"`
+	Hum		int `json:"hum"`
 	Date	string `json:"date"`
 	Feedback	string `json:"feedback"`
  } 
@@ -263,12 +263,35 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 	json.Unmarshal(iotKeyGenerate(stub), &iotkey)
 	keyIdx := strconv.Itoa(iotkey.Idx)
 
+	var lamp bool = flase
+	var gas float64 = 0
+	var tmp int = 0
+	var hum int = 0
+	var err error
+
+	if args[3] != "" {
+		lamp, err = strconv.ParseBool(args[3])
+	} 
+	
+	if args[4] != "" {
+		gas, err = strconv.ParseFloat(args[4], 64)
+	} 
+	
+	if args[5] != ""  {
+		tmp, err = strconv.Atoi(args[5])
+		hum, err = strconv.Atoi(args[6])
+	}
+
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to record IoT catch: %s", iotkey))
+	}
+
 	var keyString = iotkey.Devicekey + keyIdx
-	var iot = IoT{Devicekey: keyString, Device: args[0], UserId: args[1], Area: args[2], Lamp: args[3], Gas: args[4], Tmp: args[5], Hum: args[6], Date: args[7], Feedback: args[8]}
+	var iot = IoT{Devicekey: keyString, Device: args[0], UserId: args[1], Area: args[2], Lamp: lamp, Gas: gas, Tmp: tmp, Hum: hum, Date: args[7], Feedback: args[8]}
 	iotAsBytes, _ := json.Marshal(iot)
 	
 	
-	err := stub.PutState(keyString, iotAsBytes)
+	err = stub.PutState(keyString, iotAsBytes)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("Failed to record IoT catch: %s", iotkey))
 	}
@@ -277,6 +300,7 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 
 	return shim.Success(nil)
 }
+
 
 // Lamp State Update (on, off)
 func (t *SmartContract) lampStateUpdate(stub shim.ChaincodeStubInterface, args[] string) peer.Response {
@@ -290,7 +314,7 @@ func (t *SmartContract) lampStateUpdate(stub shim.ChaincodeStubInterface, args[]
 	
 	iot := IoT{}
 	json.Unmarshal(iotAsBytes, &iot)
-	iot.Lamp = args[1]
+	iot.Lamp, _ = strconv.ParseBool(args[1])
 	iotAsBytes, _ = json.Marshal(iot)
 	err := stub.PutState(args[0], iotAsBytes)
 	if err != nil {
@@ -312,7 +336,7 @@ func (t *SmartContract) gasStateUpdate(stub shim.ChaincodeStubInterface, args[] 
 	
 	iot := IoT{}
 	json.Unmarshal(iotAsBytes, &iot)
-	iot.Gas = args[1]
+	iot.Gas, _ = strconv.ParseFloat(args[1], 64)
 	iotAsBytes, _ = json.Marshal(iot)
 	err := stub.PutState(args[0], iotAsBytes)
 	if err != nil {
@@ -334,8 +358,8 @@ func (t *SmartContract) tmpHumStateUpdate(stub shim.ChaincodeStubInterface, args
 	
 	iot := IoT{}
 	json.Unmarshal(iotAsBytes, &iot)
-	iot.Tmp = args[1]
-	iot.Hum = args[2]
+	iot.Tmp, _ = strconv.Atoi(args[1])
+	iot.Hum, _ = strconv.Atoi(args[2])
 	iotAsBytes, _ = json.Marshal(iot)
 	err := stub.PutState(args[0], iotAsBytes)
 	if err != nil {

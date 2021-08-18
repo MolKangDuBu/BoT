@@ -54,40 +54,6 @@ router.get('/getUser', async (req, res) => {
   }
 });
 
-/*  
-router.get('/cars/:carNo', async (req, res) => {
-  const carNo = req.params.carNo;
-  try {
-    const result = await callChainCode('queryCar', false, carNo);
-    res.json(JSON.parse(result));
-  } catch(err) {
-    res.status(400).send(null);
-  }
-});
-
-router.post('/cars', async (req, res) => {
-  const args = [req.body.carNo, req.body.make, req.body.model, req.body.colour, req.body.owner];
-  try {
-    await callChainCode('createCar', true, ...args);
-    res.status(200).send({ msg: 'Transaction has been submitted.' });
-  } catch(err) {
-    console.log(err);
-    res.status(500).send({ msg: 'Failed to submit transaction'});
-  }
-});
-
-router.put('/cars/:carNo', async (req, res) => {
-  const args = [req.params.carNo, req.body.owner];
-  try {
-    await callChainCode('changeCarOwner', true, ...args);
-    res.status(200).send({ msg: 'Transaction has been submitted.' });
-  } catch(err) {
-    console.log(err);
-    res.status(500).send({ msg: 'Failed to submit transaction'});
-  }
-});
-*/
-
 // Call Chaincode
 async function callChainCode(fnName, isSubmit, ...args) {
   try {

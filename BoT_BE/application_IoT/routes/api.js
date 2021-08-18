@@ -8,17 +8,11 @@ const fs = require('fs');
 const path = require('path');
 var net = require('net');
 
-const ccpPath = path.resolve(__dirname, '..', '..', 'basic-network', 'connection_org2.json');
+const ccpPath = path.resolve(__dirname, '..', '..', 'basic-network', 'connection.json');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
-var socket = net.connect({
-  port: 22485,
-  host: "192.168.35.18"
-});
-
-socket.setEncoding('utf8');
-
+var socket;
 
 /* GET users listing. */
 router.get('/', async (req, res) => {
@@ -28,6 +22,7 @@ router.get('/', async (req, res) => {
 
 router.post('/addIot', async (req, res) => {
   const args = [req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.date, req.body.feedback];
+  console.log(req.body.lamp, ' ', req.body.gas, ' ', req.body.tmp, ' ', req.body.hum)
   try {
     await callChainCode('addIot', true, ...args);
     res.status(200).send({ msg: 'addIot_Success' });
@@ -41,6 +36,12 @@ router.post('/lampStateUpdate', async (req, res) => {
   const args = [req.body.devicekey, req.body.lamp];
   try {
     await callChainCode('lampStateUpdate', true, ...args);
+ 
+    var port = 22485;
+    var host = "192.168.35.18";
+
+    /*
+    socket = netConn(port, host);
 
     // Arduino lamp connect
     socket.on('connect', function() {
@@ -68,7 +69,8 @@ router.post('/lampStateUpdate', async (req, res) => {
     socket.on('error', function(err) {
       console.log('on error: ', err.code);
     });
-  
+    */
+
     res.status(200).send({ msg: 'Transaction has been submitted.' });
 
   } catch(err) {
@@ -146,4 +148,14 @@ async function callChainCode(fnName, isSubmit, ...args) {
   }
 }
 
+async function netConn(port, ip) {
+  socket = net.connect({
+    port: port,
+    host: ip
+  });
+  
+  socket.setEncoding('utf8');
+
+  return socket  
+}
 module.exports = router;

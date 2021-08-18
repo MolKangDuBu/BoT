@@ -8,7 +8,7 @@ const { FileSystemWallet, Gateway, X509WalletMixin } = require('fabric-network')
 const fs = require('fs');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', 'basic-network', 'connection_org2.json');
+const ccpPath = path.resolve(__dirname, '..', 'basic-network', 'connection.json');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
@@ -44,9 +44,9 @@ async function main() {
         const adminIdentity = gateway.getCurrentIdentity();
 
         // Register the user, enroll the user, and import the new identity into the wallet.
-        const secret = await ca.register({ affiliation: 'org2.department1', enrollmentID: 'user2', role: 'client' }, adminIdentity);
+        const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: 'user2', role: 'client' }, adminIdentity);
         const enrollment = await ca.enroll({ enrollmentID: 'user2', enrollmentSecret: secret });
-        const userIdentity = X509WalletMixin.createIdentity('Org2MSP', enrollment.certificate, enrollment.key.toBytes());
+        const userIdentity = X509WalletMixin.createIdentity('Org1MSP', enrollment.certificate, enrollment.key.toBytes());
         wallet.import('user2', userIdentity);
         console.log('Successfully registered and enrolled admin user "user2" and imported it into the wallet');
 

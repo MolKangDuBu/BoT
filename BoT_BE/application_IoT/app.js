@@ -5,8 +5,8 @@ var path = require('path');
 var apiRouter = require('./routes/api');
 var app = express();
 
-const PORT1 = 3001;
-const HOST2 = '0.0.0.0';
+const PORT = 3001;
+const HOST = '0.0.0.0';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -31,5 +31,5 @@ app.use(function(err, req, res, next) {
 });
 
 // 서버시작
-app.listen(PORT1, HOST2);
-console.log(`Running on http://${HOST2}:${PORT1}`);
+app.listen(PORT, HOST);
+console.log(`Running on http://${HOST}:${PORT}`);

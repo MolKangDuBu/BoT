@@ -19,11 +19,15 @@ router.get('/', function(req, res) {
 router.post('/addUser', async (req, res) => {
   const args = [req.body.id, req.body.pw, req.body.name, req.body.mail, req.body.phone, req.body.team];
   try {
-    await callChainCode('addUser', true, ...args);
-    res.status(200).send({ msg: 'addUser_Success' });
+    const result = await callChainCode('addUser', true, ...args);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('addUser_Failed');
+    } else {
+      res.status(200).send('addUser_Success');
+    }
   } catch(err) {
     console.log(err);
-    res.status(500).send({ msg: 'addUser_Failed'});
+    res.status(200).send('addUser_Failed');
   }
 });
 
@@ -31,26 +35,43 @@ router.post('/login', async (req, res) => {
   const args = [req.body.id, req.body.pw];
   try {
     const result = await callChainCode('login', false, ...args);
-    const obj = JSON.parse(result)
-    res.status(200).send({ msg: 'login_Success' }); 
+    if (result == 'error occurred!!!') {
+      res.status(200).send('login_Failed');
+    } else {
+      res.status(200).send('login_Success'); 
+    }
+    
   } catch(err) {
     console.log(err);
-    res.status(500).send({ msg: 'login_Failed' });
+    res.status(200).send('login_Failed');
   }
 });
 
 router.get('/queryAllUsers', async (req, res) => {
-  const result = await callChainCode('queryAllUsers', false);
-  res.json(JSON.parse(result));
+  try {
+    const result = await callChainCode('queryAllUsers', false);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('queryAllUsers_Failed');
+    } else {
+      res.status(200).json(JSON.parse(result));
+    }    
+  } catch(err) {
+    console.log(err);
+    res.status(200).send('queryAllUsers_Failed');
+  }
 });
 
 router.get('/getUser', async (req, res) => {
   const userKey = req.query.userkey;
   try {
     const result = await callChainCode('getUser', false, userKey);
-    res.json(JSON.parse(result));
+    if (result == 'error occurred!!!') {
+      res.status(200).send('getUser_Failed');
+    } else {
+      res.status(200).json(JSON.parse(result));
+    }        
   } catch(err) {
-    res.status(500).send(null);
+    res.status(200).send('getUser_Failed');
   }
 });
 

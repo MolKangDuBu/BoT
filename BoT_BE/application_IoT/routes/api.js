@@ -12,7 +12,9 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'basic-network', 'connection
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
-var socket;
+const port = 22485;
+const host = "192.168.0.11";
+
 
 /* GET users listing. */
 router.get('/', async (req, res) => {
@@ -21,89 +23,132 @@ router.get('/', async (req, res) => {
 
 
 router.post('/addIot', async (req, res) => {
-  const args = [req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.date, req.body.feedback];
-  console.log(req.body.lamp, ' ', req.body.gas, ' ', req.body.tmp, ' ', req.body.hum)
+  const args = [req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.feedback];
   try {
-    await callChainCode('addIot', true, ...args);
-    res.status(200).send({ msg: 'addIot_Success' });
+    const result = await callChainCode('addIot', true, ...args);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('addIot_Failed');
+    } else {
+      res.status(200).send('addIot_Success');
+    }
   } catch(err) {
     console.log(err);
-    res.status(500).send({ msg: 'addIot_Failed'});
+    res.status(200).send('addIot_Failed');
   }
 });
 
 router.post('/lampStateUpdate', async (req, res) => {
   const args = [req.body.devicekey, req.body.lamp];
+
   try {
-    await callChainCode('lampStateUpdate', true, ...args);
- 
-    var port = 22485;
-    var host = "192.168.35.18";
+    var socket = net.connect({
+      port: port,
+      host: host
+    });
+    
+    socket.setEncoding('utf8');
 
-    /*
-    socket = netConn(port, host);
-
-    // Arduino lamp connect
-    socket.on('connect', function() {
-      console.log("on connect");
+    // Arduino connection
+    socket.on('connect', () => {
+      console.log("connected to server");
   
-      if(req.body.lamp == 'ON') {
-        setTimeout(() => {
+      if(req.body.lamp == 'true') {
+        setTimeout( () => {
             socket.write('ON');
         }, 1000);
-      } else if(req.body.lamp == 'OFF') {
-        setTimeout(() => {
+      } else if(req.body.lamp == 'false') {
+        setTimeout( () => {
           socket.write('OFF');
-        }, 5000);
+        }, 1000);
       }      
+      setTimeout( () => {
+        socket.destroy()
+      }, 2000);      
     });
-    socket.on('data', function(data) {
+
+    socket.on('data', (data) => {
       console.log(data);
     });
 
-    socket.on('close', function() {
+    socket.on('close', () => {
       console.log('close');
     });
 
-
-    socket.on('error', function(err) {
+    socket.on('error', (err) => {
       console.log('on error: ', err.code);
     });
-    */
-
-    res.status(200).send({ msg: 'Transaction has been submitted.' });
-
+    
+    const result = await callChainCode('lampStateUpdate', true, ...args);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('lampStateUpdate_Failed');
+    } else {
+      res.status(200).send('lampStateUpdate_Success');
+    }
   } catch(err) {
     console.log(err);
-    res.status(500).send({ msg: 'Failed to submit transaction'});
+    res.status(200).send('lampStateUpdate_Failed');
   }
 });
 
+/*
 router.post('/gasStateUpdate', async (req, res) => {
   const args = [req.body.devicekey, req.body.gas];
   try {
-    await callChainCode('gasStateUpdate', true, ...args);
-    res.status(200).send({ msg: 'Transaction has been submitted.' });
+    const result = await callChainCode('gasStateUpdate', true, ...args);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('gasStateUpdate_Success');
+    } else {
+      res.status(200).send('gasStateUpdate_Failed');
+    }
   } catch(err) {
     console.log(err);
-    res.status(500).send({ msg: 'Failed to submit transaction'});
+    res.status(200).send('gasStateUpdate_Failed');
   }
 });
 
 router.post('/tmpHumStateUpdate', async (req, res) => {
   const args = [req.body.devicekey, req.body.tmp, req.body.hum];
   try {
-    await callChainCode('tmpHumStateUpdate', true, ...args);
-    res.status(200).send({ msg: 'Transaction has been submitted.' });
+    const result = await callChainCode('tmpHumStateUpdate', true, ...args);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('tmpHumStateUpdate_Failed');
+    } else {
+      res.status(200).send('tmpHumStateUpdate_Success');
+    }
   } catch(err) {
     console.log(err);
-    res.status(500).send({ msg: 'Failed to submit transaction'});
+    res.status(200).send('tmpHumStateUpdate_Failed');
+  }
+});
+*/
+
+router.post('/iotFind', async (req, res) => {
+  const args = [req.body.userId];
+  try {
+    const result = await callChainCode('iotFind', false, ...args);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('iotFind_Failed');
+    } else {
+      res.status(200).json(JSON.parse(result));
+    }
+  } catch(err) {
+    console.log(err);
+    res.status(200).send('iotFind_Failed');
   }
 });
 
-router.get('/queryAllIoTs', async (req, res) => {
-  const result = await callChainCode('queryAllIoTs', false);
-  res.json(JSON.parse(result));
+router.post('/queryAllIoTs', async (req, res) => {
+  try {
+    const result = await callChainCode('queryAllIoTs', false);
+    if (result == 'error occurred!!!') {
+      res.status(200).send('queryAllIoTs_Failed');
+    } else {
+      res.json(JSON.parse(result));
+    }
+  } catch(err) {
+    console.log(err);
+    res.status(200).send('queryAllIoTs_Failed');
+  }
 });
 
 // Call Chaincode
@@ -148,14 +193,4 @@ async function callChainCode(fnName, isSubmit, ...args) {
   }
 }
 
-async function netConn(port, ip) {
-  socket = net.connect({
-    port: port,
-    host: ip
-  });
-  
-  socket.setEncoding('utf8');
-
-  return socket  
-}
 module.exports = router;

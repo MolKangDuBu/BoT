@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"strconv"
 	"encoding/json"
- 	
+ 	"time"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/protos/peer"
  )
@@ -42,7 +43,7 @@ type IoT struct {
 	Hum		int `json:"hum"`
 	Date	string `json:"date"`
 	Feedback	string `json:"feedback"`
- } 
+} 
 
 type IotKey struct {
 	Devicekey string
@@ -65,8 +66,6 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 		return t.login(stub, args)
 	} else if fn == "queryAllUsers" {
 		return t.queryAllUsers(stub)
-	} else if fn == "getUser" {
-		return t.getUser(stub, args)
 	} else if fn == "addIot" {
 		return t.addIot(stub, args)
 	} else if fn == "lampStateUpdate" {
@@ -75,6 +74,8 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 		return t.gasStateUpdate(stub, args)
 	} else if fn == "tmpHumStateUpdate" {
 		return t.tmpHumStateUpdate(stub, args)
+	} else if fn == "iotFind" {
+		return t.iotFind(stub, args)
 	} else if fn == "queryAllIoTs" {
 		return t.queryAllIoTs(stub)
 	}
@@ -85,7 +86,7 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 
 /* ------------------------- USER functions ------------------------- */
 
-// Add User function
+// Add User
  func (t *SmartContract) addUser(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	if len(args) != 6 {
 		return shim.Error("Incorrect number of arguments. Expecting 6")
@@ -115,7 +116,7 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 	return shim.Success(nil)
 }
 
-// Login function
+// Login
 func (t *SmartContract) login(stub shim.ChaincodeStubInterface, args []string) peer.Response {
 	if(len(args) != 2) {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
@@ -129,11 +130,10 @@ func (t *SmartContract) login(stub shim.ChaincodeStubInterface, args []string) p
 		return shim.Error("Incorrect PW")
 	}
 
-	userAsBytes, _ := json.Marshal(user)
-	return shim.Success(userAsBytes)
+	return shim.Success(nil)
 }
 
-// Query All Users function
+// Query All Users Info
 func (t *SmartContract) queryAllUsers(stub shim.ChaincodeStubInterface) peer.Response {
 	userKeyAsBytes, _ := stub.GetState("latestUserKey")
 	userkey := UserKey{}
@@ -177,17 +177,7 @@ func (t *SmartContract) queryAllUsers(stub shim.ChaincodeStubInterface) peer.Res
 	return shim.Success(buffer.Bytes())
 }
 
-// Get One User's function
-func (t *SmartContract) getUser(stub shim.ChaincodeStubInterface, args []string) peer.Response {
-	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
-	}
-
-	userAsBytes, _ := stub.GetState(args[0])
-	return shim.Success(userAsBytes)
-}
-
-// Find User's Id function
+// Find User's Id
 func userFind(stub shim.ChaincodeStubInterface, args []string, fns string) (User, bool) {
 	userKeyAsBytes, _ := stub.GetState("latestUserKey")
 	userkey := UserKey{}
@@ -202,7 +192,6 @@ func userFind(stub shim.ChaincodeStubInterface, args []string, fns string) (User
 		fmt.Println(err.Error())
 	}
 	defer resultIter.Close()
-
 
 	for resultIter.HasNext() {
 		queryResponse, err := resultIter.Next()
@@ -255,15 +244,15 @@ func userKeyGenerate(stub shim.ChaincodeStubInterface) []byte {
 /* ------------------------- IoT functions ------------------------- */
 // Add IoT Info
 func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) peer.Response {
-	if len(args) != 9 {
-		return shim.Error("Incorrect number of arguments. Expecting 9")
+	if len(args) != 8 {
+		return shim.Error("Incorrect number of arguments. Expecting 8")
 	}
 	
 	var iotkey = IotKey{}
 	json.Unmarshal(iotKeyGenerate(stub), &iotkey)
 	keyIdx := strconv.Itoa(iotkey.Idx)
 
-	var lamp bool = flase
+	var lamp bool = false
 	var gas float64 = 0
 	var tmp int = 0
 	var hum int = 0
@@ -286,8 +275,16 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 		return shim.Error(fmt.Sprintf("Failed to record IoT catch: %s", iotkey))
 	}
 
+	// Setting to Korea Time
+	loc, err := time.LoadLocation("Asia/Seoul")
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to time locate"))
+	}
+
+	now := time.Now().In(loc)
+	custom := now.Format("2006-01-02 15:04:05")
 	var keyString = iotkey.Devicekey + keyIdx
-	var iot = IoT{Devicekey: keyString, Device: args[0], UserId: args[1], Area: args[2], Lamp: lamp, Gas: gas, Tmp: tmp, Hum: hum, Date: args[7], Feedback: args[8]}
+	var iot = IoT{Devicekey: keyString, Device: args[0], UserId: args[1], Area: args[2], Lamp: lamp, Gas: gas, Tmp: tmp, Hum: hum, Date: custom, Feedback: args[7]}
 	iotAsBytes, _ := json.Marshal(iot)
 	
 	
@@ -301,22 +298,32 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 	return shim.Success(nil)
 }
 
-
 // Lamp State Update (on, off)
 func (t *SmartContract) lampStateUpdate(stub shim.ChaincodeStubInterface, args[] string) peer.Response {
 	if len(args) != 2 {
 		return shim.Error("Incorrect number of arguments. Expecting 2")
 	}
+
 	iotAsBytes, _ := stub.GetState(args[0])
 	if iotAsBytes == nil {
 		return shim.Error("Could not locate IoT")
 	}
+
+	// Setting to Korea Time
+	loc, err := time.LoadLocation("Asia/Seoul")
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to time locate"))
+	}
 	
+	now := time.Now().In(loc)
+	custom := now.Format("2006-01-02 15:04:05")		
+
 	iot := IoT{}
 	json.Unmarshal(iotAsBytes, &iot)
 	iot.Lamp, _ = strconv.ParseBool(args[1])
+	iot.Date = custom
 	iotAsBytes, _ = json.Marshal(iot)
-	err := stub.PutState(args[0], iotAsBytes)
+	err = stub.PutState(args[0], iotAsBytes)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("Failed to change IoT holder: %s", args[0]))
 	}
@@ -333,12 +340,22 @@ func (t *SmartContract) gasStateUpdate(stub shim.ChaincodeStubInterface, args[] 
 	if iotAsBytes == nil {
 		return shim.Error("Could not locate IoT")
 	}
+
+	// Setting to Korea Time
+	loc, err := time.LoadLocation("Asia/Seoul")
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to time locate"))
+	}
+	
+	now := time.Now().In(loc)
+	custom := now.Format("2006-01-02 15:04:05")		
 	
 	iot := IoT{}
 	json.Unmarshal(iotAsBytes, &iot)
 	iot.Gas, _ = strconv.ParseFloat(args[1], 64)
+	iot.Date = custom
 	iotAsBytes, _ = json.Marshal(iot)
-	err := stub.PutState(args[0], iotAsBytes)
+	err = stub.PutState(args[0], iotAsBytes)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("Failed to change IoT holder: %s", args[0]))
 	}
@@ -356,17 +373,87 @@ func (t *SmartContract) tmpHumStateUpdate(stub shim.ChaincodeStubInterface, args
 		return shim.Error("Could not locate IoT")
 	}
 	
+	// Setting to Korea Time
+	loc, err := time.LoadLocation("Asia/Seoul")
+	if err != nil {
+		return shim.Error(fmt.Sprintf("Failed to time locate"))
+	}
+	
+	now := time.Now().In(loc)
+	custom := now.Format("2006-01-02 15:04:05")		
+
 	iot := IoT{}
 	json.Unmarshal(iotAsBytes, &iot)
 	iot.Tmp, _ = strconv.Atoi(args[1])
 	iot.Hum, _ = strconv.Atoi(args[2])
+	iot.Date = custom
 	iotAsBytes, _ = json.Marshal(iot)
-	err := stub.PutState(args[0], iotAsBytes)
+	err = stub.PutState(args[0], iotAsBytes)
 	if err != nil {
 		return shim.Error(fmt.Sprintf("Failed to change IoT holder: %s", args[0]))
 	}
 	return shim.Success(nil)
 
+}
+
+// Query 
+
+
+// Find Specific User's IoT Info From UserId Include IoT State
+func (t *SmartContract) iotFind(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	if len(args) != 1 {
+		return shim.Error("Incorrect number of arguments. Expecting 1")
+	}
+
+	iotKeyAsBytes, _ := stub.GetState("latestIotKey")
+	iotkey := IotKey{}
+	json.Unmarshal(iotKeyAsBytes, &iotkey)
+	idxStr := strconv.Itoa(iotkey.Idx + 1)
+
+	var startKey = "IoT0"
+	var endKey = iotkey.Devicekey + idxStr
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer resultIter.Close()
+
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+	bArrayMemberAlreadyWritten := false
+
+	for resultIter.HasNext() {
+		queryResponse, err := resultIter.Next()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		iot := IoT{}
+		json.Unmarshal(queryResponse.Value, &iot)
+
+		if iot.UserId == args[0] {
+			if bArrayMemberAlreadyWritten == true {
+				buffer.WriteString(",")
+			}
+			buffer.WriteString("{\"Key\":")
+			buffer.WriteString("\"")
+			buffer.WriteString(queryResponse.Key)
+			buffer.WriteString("\"")
+		
+			// Record is a JSON object, so we write as-is
+			buffer.WriteString(", \"Record\":")		
+			buffer.WriteString(string(queryResponse.Value))
+			buffer.WriteString("}")
+			bArrayMemberAlreadyWritten = true
+	
+		}		
+	}
+
+	buffer.WriteString("]")
+	if buffer.Len() == 2 {
+		return shim.Error("Buffer is Empty Try Another userId")
+	}
+	return shim.Success(buffer.Bytes())
 }
 
 // Show All State of IoT
@@ -413,7 +500,7 @@ func (t *SmartContract) queryAllIoTs(stub shim.ChaincodeStubInterface) peer.Resp
 	return shim.Success(buffer.Bytes())
 }
 
-//IotKey generateKey function
+//IotKey generateKey
 func iotKeyGenerate(stub shim.ChaincodeStubInterface) []byte {
 	var isFirst bool = false
 

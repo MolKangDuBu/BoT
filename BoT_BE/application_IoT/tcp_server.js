@@ -3,25 +3,31 @@ const { FileSystemWallet, Gateway } = require('fabric-network');
 const fs = require('fs');
 const path = require('path');
 
-const ccpPath = path.resolve(__dirname, '..', '..', 'basic-network', 'connection.json');
+const ccpPath = path.resolve(__dirname, '..', 'basic-network', 'connection.json');
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
-const ipaddr = "192.168.35.46";
 const port = 3002;
+const host = "0.0.0.0";
 
 
-let server = net.createServer(function (socket) {
+var server = net.createServer(function(socket) {
 	console.log(socket.address().address + " connected.");
 
 	// setting encoding
 	socket.setEncoding('utf8');
 
 	// print data from client
-	socket.on('data', function (data) {
-		try {
-			
-			await callChainCode('gasStateUpdate', true, ...args);
+	socket.on('data', async function (data) {
+		try {			
+			// need 3 args (type of iot, key, state)
+			const args = data.split(',');
+			const result;
+			if(args[1].includes('gas')) {
+				result = await callChainCode('gasStateUpdate', true, args[2], args[3]);
+			} else if(args[1].includes('tmpHum')) {
+				result = await callChainCode('tmpHumStateUpdate', true, args[2], args[3], args[4]);
+			}
 		} catch(err) {
 			console.log(err);
 		}
@@ -51,11 +57,9 @@ server.on('error', function (err) {
 });
 
 // listening
-server.listen(port, ipaddr, function () {
+server.listen(port, host, function () {
 	console.log('listening on 3002..');
 });
-
-
 
 // Call Chaincode
 async function callChainCode(fnName, isSubmit, ...args) {
@@ -97,4 +101,4 @@ async function callChainCode(fnName, isSubmit, ...args) {
 	  console.error(`Failed to create transaction: ${error}`);
 	  return 'error occurred!!!';
 	}
-  }
+}

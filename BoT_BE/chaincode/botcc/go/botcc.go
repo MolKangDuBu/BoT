@@ -111,7 +111,7 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 	
 	err := stub.PutState(keyString, userAsBytes)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("failedToRecordUser")
+		return shim.Error("failedToRecordUser")
 	}
 	userKeyAsBytes, _ := json.Marshal(userkey)
 	stub.PutState("latestUserKey", userKeyAsBytes)

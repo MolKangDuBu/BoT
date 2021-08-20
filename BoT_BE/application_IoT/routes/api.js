@@ -23,11 +23,18 @@ router.get('/', async (req, res) => {
 
 
 router.post('/addIot', async (req, res) => {
-  const args = [req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.feedback];
+  const args = [req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.feedback, req.body.ip];
   try {
     const result = await callChainCode('addIot', true, ...args);
-    if (result == 'error occurred!!!') {
+    console.log('result = ', result)
+    if (result == 'incorrectArgumentsExpecting9') {
+      res.status(200).send('addIot_Failed_incorrectArgumentsExpecting9');
+    } else if (result == 'failedRecordIoTCatch') {
       res.status(200).send('addIot_Failed');
+    } else if (result == 'failedTimeLocate') {
+      res.status(200).send('addIot_Failed');
+    } else if (result == 'walletError') {
+      res.status(200).send('addIot_Failed_walletError');
     } else {
       res.status(200).send('addIot_Success');
     }
@@ -79,8 +86,16 @@ router.post('/lampStateUpdate', async (req, res) => {
     });
     
     const result = await callChainCode('lampStateUpdate', true, ...args);
-    if (result == 'error occurred!!!') {
+    if (result == 'incorrectArgumentsExpecting2') {
+      res.status(200).send('lampStateUpdate_Failed_incorrectArgumentsExpecting2');
+    } else if (result == 'couldNotLocateIoT') {
+      res.status(200).send('lampStateUpdate_Failed_couldNotLocateIoT');
+    } else if (result == 'failedTimeLocate') {
       res.status(200).send('lampStateUpdate_Failed');
+    } else if (result == 'failedToChangeIoTholder') {
+      res.status(200).send('lampStateUpdate_Failed');
+    } else if (result == 'walletError') {
+      res.status(200).send('lampStateUpdate_Failed_walletError');
     } else {
       res.status(200).send('lampStateUpdate_Success');
     }
@@ -90,44 +105,16 @@ router.post('/lampStateUpdate', async (req, res) => {
   }
 });
 
-/*
-router.post('/gasStateUpdate', async (req, res) => {
-  const args = [req.body.devicekey, req.body.gas];
-  try {
-    const result = await callChainCode('gasStateUpdate', true, ...args);
-    if (result == 'error occurred!!!') {
-      res.status(200).send('gasStateUpdate_Success');
-    } else {
-      res.status(200).send('gasStateUpdate_Failed');
-    }
-  } catch(err) {
-    console.log(err);
-    res.status(200).send('gasStateUpdate_Failed');
-  }
-});
-
-router.post('/tmpHumStateUpdate', async (req, res) => {
-  const args = [req.body.devicekey, req.body.tmp, req.body.hum];
-  try {
-    const result = await callChainCode('tmpHumStateUpdate', true, ...args);
-    if (result == 'error occurred!!!') {
-      res.status(200).send('tmpHumStateUpdate_Failed');
-    } else {
-      res.status(200).send('tmpHumStateUpdate_Success');
-    }
-  } catch(err) {
-    console.log(err);
-    res.status(200).send('tmpHumStateUpdate_Failed');
-  }
-});
-*/
-
 router.post('/iotFind', async (req, res) => {
   const args = [req.body.userId];
   try {
     const result = await callChainCode('iotFind', false, ...args);
-    if (result == 'error occurred!!!') {
-      res.status(200).send('iotFind_Failed');
+    if (result == 'incorrectArgumentsExpecting1') {
+      res.status(200).send('iotFind_Failed_incorrectArgumentsExpecting1');
+    } else if (result == 'notExistUserid') {
+      res.status(200).send('iotFind_Failed_notExistUserid');
+    } else if (result == 'walletError') {
+      res.status(200).send('iotFind_Failed_walletError');
     } else {
       res.status(200).json(JSON.parse(result));
     }
@@ -138,10 +125,16 @@ router.post('/iotFind', async (req, res) => {
 });
 
 router.post('/queryAllIoTs', async (req, res) => {
+  const args = [req.body.devicekey, req.body.lamp];
+
   try {
     const result = await callChainCode('queryAllIoTs', false);
-    if (result == 'error occurred!!!') {
+    if (result == 'getStateByRangeError') {
       res.status(200).send('queryAllIoTs_Failed');
+    } else if (result == 'resultIterError') {
+      res.status(200).send('queryAllIoTs_Failed');
+    } else if (result == 'walletError') {
+      res.status(200).send('queryAllIoTs_Failed_walletError');
     } else {
       res.json(JSON.parse(result));
     }
@@ -164,7 +157,7 @@ async function callChainCode(fnName, isSubmit, ...args) {
     if (!userExists) {
         console.log('An identity for the user "user2" does not exist in the wallet');
         console.log('Run the registerUser.js application before retrying');
-        return;
+        return 'walletError';
     }
 
     // Create a new gateway for connecting to our peer node.
@@ -187,9 +180,11 @@ async function callChainCode(fnName, isSubmit, ...args) {
     }
     return result;
 
+    // Chaincoe Error
   } catch(err) {
-    console.error(`Failed to create transaction: ${err}`);
-    return 'error occurred!!!';
+    //console.error(`Failed to create transaction: ${err}`);
+    var index = err.message.split('message=')
+    return index[1];
   }
 }
 

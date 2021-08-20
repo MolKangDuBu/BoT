@@ -20,7 +20,13 @@ router.post('/addUser', async (req, res) => {
   const args = [req.body.id, req.body.pw, req.body.name, req.body.mail, req.body.phone, req.body.team];
   try {
     const result = await callChainCode('addUser', true, ...args);
-    if (result == 'error occurred!!!') {
+    if (result == 'incorrectArgumentsExpecting6') {
+      res.status(200).send('addUser_Failed_incorrectArgumentsExpecting6');
+    } else if (result == 'walletError') {
+      res.status(200).send('addUser_Failed_walletError');
+    } else if (result == 'alreadyExistingId') {
+      res.status(200).send('addUser_Failed_alreadyExistingId');
+    } else if (result == 'failedToRecordUser') {
       res.status(200).send('addUser_Failed');
     } else {
       res.status(200).send('addUser_Success');
@@ -35,8 +41,14 @@ router.post('/login', async (req, res) => {
   const args = [req.body.id, req.body.pw];
   try {
     const result = await callChainCode('login', false, ...args);
-    if (result == 'error occurred!!!') {
-      res.status(200).send('login_Failed');
+    if (result == 'incorrectArgumentsExpecting2') {
+      res.status(200).send('login_Failed_incorrectArgumentsExpecting2');
+    } else if (result == 'incorrectId') {
+      res.status(200).send('login_Failed_incorrectId');
+    } else if (result == 'incorrectPw') {
+      res.status(200).send('login_Failed_incorrectPw');
+    } else if (result == 'walletError') {
+      res.status(200).send('login_Failed_walletError');
     } else {
       res.status(200).send('login_Success'); 
     }
@@ -50,8 +62,12 @@ router.post('/login', async (req, res) => {
 router.get('/queryAllUsers', async (req, res) => {
   try {
     const result = await callChainCode('queryAllUsers', false);
-    if (result == 'error occurred!!!') {
+    if (result == 'getStateByRangeError') {
       res.status(200).send('queryAllUsers_Failed');
+    } else if (result == 'resultiterError') {
+      res.status(200).send('queryAllUsers_Failed');
+    } else if (result == 'walletError') {
+      res.status(200).send('queryAllUsers_Failed_walletError');
     } else {
       res.status(200).json(JSON.parse(result));
     }    
@@ -61,12 +77,16 @@ router.get('/queryAllUsers', async (req, res) => {
   }
 });
 
-router.get('/getUser', async (req, res) => {
-  const userKey = req.query.userkey;
+router.get('/getUserInfo', async (req, res) => {
+  const id = [req.query.id];
   try {
-    const result = await callChainCode('getUser', false, userKey);
-    if (result == 'error occurred!!!') {
-      res.status(200).send('getUser_Failed');
+    const result = await callChainCode('getUserInfo', false, id);
+    if (result == 'incorrectArgumentsExpecting1') {
+      res.status(200).send('getUser_Failed_incorrectArgumentsExpecting1');
+    } else if (result == 'infoNotExist') {
+      res.status(200).send('getUser_Failed_infoNotExist');
+    }  else if (result == 'walletError') {
+      res.status(200).send('getUser_Failed_walletError');
     } else {
       res.status(200).json(JSON.parse(result));
     }        
@@ -88,7 +108,7 @@ async function callChainCode(fnName, isSubmit, ...args) {
     if (!userExists) {
         console.log('An identity for the user "user1" does not exist in the wallet');
         console.log('Run the registerUser.js application before retrying');
-        return;
+        return 'walletError';
     }
 
     // Create a new gateway for connecting to our peer node.
@@ -112,8 +132,9 @@ async function callChainCode(fnName, isSubmit, ...args) {
     return result;
 
   } catch(err) {
-    console.error(`Failed to create transaction: ${error}`);
-    return 'error occurred!!!';
+    //console.error(`Failed to create transaction: ${err}`);    
+    var index = err.message.split('message=')
+    return index[1];
   }
 }
 

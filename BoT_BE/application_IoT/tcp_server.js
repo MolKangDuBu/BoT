@@ -22,7 +22,7 @@ var server = net.createServer(function(socket) {
 		try {			
 			// need 3 args (type of iot, key, state)
 			const args = data.split(',');
-			const result;
+			var result;
 			if(args[1].includes('gas')) {
 				result = await callChainCode('gasStateUpdate', true, args[2], args[3]);
 			} else if(args[1].includes('tmpHum')) {

@@ -17,9 +17,10 @@ router.get('/', function(req, res) {
 });
 
 router.post('/addUser', async (req, res) => {
-  const args = [req.body.id, req.body.pw, req.body.name, req.body.mail, req.body.phone, req.body.team];
   try {
+    const args = [req.body.id, req.body.pw, req.body.name, req.body.mail, req.body.phone, req.body.team];
     const result = await callChainCode('addUser', true, ...args);
+
     if (result == 'incorrectArgumentsExpecting6') {
       res.status(200).send('addUser_Failed_incorrectArgumentsExpecting6');
     } else if (result == 'walletError') {
@@ -32,15 +33,18 @@ router.post('/addUser', async (req, res) => {
       res.status(200).send('addUser_Success');
     }
   } catch(err) {
-    console.log(err);
+    console.log('this is err\n', err);
     res.status(200).send('addUser_Failed');
   }
 });
 
 router.post('/login', async (req, res) => {
-  const args = [req.body.id, req.body.pw];
   try {
+    const args = [req.body.id, req.body.pw];
     const result = await callChainCode('login', false, ...args);
+
+    console.log("result = ", result)
+
     if (result == 'incorrectArgumentsExpecting2') {
       res.status(200).send('login_Failed_incorrectArgumentsExpecting2');
     } else if (result == 'incorrectId') {
@@ -59,7 +63,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/queryAllUsers', async (req, res) => {
+router.post('/queryAllUsers', async (req, res) => {
   try {
     const result = await callChainCode('queryAllUsers', false);
     if (result == 'getStateByRangeError') {
@@ -77,10 +81,10 @@ router.get('/queryAllUsers', async (req, res) => {
   }
 });
 
-router.get('/getUserInfo', async (req, res) => {
-  const id = [req.query.id];
+router.post('/getUserInfo', async (req, res) => {
   try {
-    const result = await callChainCode('getUserInfo', false, id);
+    const args = [req.body.id];
+    const result = await callChainCode('getUserInfo', false, ...args);
     if (result == 'incorrectArgumentsExpecting1') {
       res.status(200).send('getUser_Failed_incorrectArgumentsExpecting1');
     } else if (result == 'infoNotExist') {
@@ -133,8 +137,13 @@ async function callChainCode(fnName, isSubmit, ...args) {
 
   } catch(err) {
     //console.error(`Failed to create transaction: ${err}`);    
-    var index = err.message.split('message=')
-    return index[1];
+    if (err.message.indexOf('message=') == -1) {
+      return err.message
+    } else {
+      var index = err.message.split('message=')
+      var index2 = index[1].split(' ')
+      return index2[0];
+    }
   }
 }
 

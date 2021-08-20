@@ -125,6 +125,7 @@ func (t *SmartContract) login(stub shim.ChaincodeStubInterface, args []string) p
 		return shim.Error("incorrectArgumentsExpecting2")
 	}
 
+
 	user, isExist := userFindFromId(stub, args, "login")
 	if isExist == false {
 		return shim.Error("incorrectId")

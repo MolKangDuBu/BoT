@@ -26,7 +26,6 @@ router.post('/addIot', async (req, res) => {
   const args = [req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.feedback, req.body.ip];
   try {
     const result = await callChainCode('addIot', true, ...args);
-    console.log('result = ', result)
     if (result == 'incorrectArgumentsExpecting9') {
       res.status(200).send('addIot_Failed_incorrectArgumentsExpecting9');
     } else if (result == 'failedRecordIoTCatch') {
@@ -125,7 +124,6 @@ router.post('/iotFind', async (req, res) => {
 });
 
 router.post('/queryAllIoTs', async (req, res) => {
-  const args = [req.body.devicekey, req.body.lamp];
 
   try {
     const result = await callChainCode('queryAllIoTs', false);
@@ -183,8 +181,13 @@ async function callChainCode(fnName, isSubmit, ...args) {
     // Chaincoe Error
   } catch(err) {
     //console.error(`Failed to create transaction: ${err}`);
-    var index = err.message.split('message=')
-    return index[1];
+    if (err.message.indexOf('message=') == -1) {
+      return err.message
+    } else {
+      var index = err.message.split('message=')
+      var index2 = index[1].split(' ')
+      return index2[0];
+    }
   }
 }
 

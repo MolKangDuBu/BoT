@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 
 var apiRouter = require('./routes/api');
+var iotRouter = require('./routes/iot');
 var app = express();
 
 const PORT = 3000;
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', apiRouter);
+app.use('/iot', iotRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

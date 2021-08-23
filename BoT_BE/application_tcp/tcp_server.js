@@ -7,7 +7,7 @@ const ccpPath = path.resolve(__dirname, '..', 'basic-network', 'connection.json'
 const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
-const port = 3002;
+const port = 3001;
 const host = "0.0.0.0";
 
 
@@ -58,7 +58,7 @@ server.on('error', function (err) {
 
 // listening
 server.listen(port, host, function () {
-	console.log('listening on 3002..');
+	console.log('listening on 3001..');
 });
 
 // Call Chaincode

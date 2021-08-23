@@ -43,6 +43,27 @@ router.post('/addIot', async (req, res) => {
   }
 });
 
+router.post('/updateIot', async (req, res) => {
+  const args = [req.body.devicekey, req.body.device, req.body.id, req.body.area, req.body.lamp, req.body.gas, req.body.tmp, req.body.hum, req.body.feedback, req.body.ip];
+  try {
+    const result = await callChainCode('updateIot', true, ...args);
+    if (result == 'incorrectArgumentsExpecting10') {
+      res.status(200).send('updateIot_Failed_incorrectArgumentsExpecting10');
+    } else if (result == 'failedRecordIoTCatch') {
+      res.status(200).send('updateIot_Failed_notExsitIoTNo');
+    } else if (result == 'failedTimeLocate') {
+      res.status(200).send('updateIot_Failed');
+    } else if (result == 'walletError') {
+      res.status(200).send('updateIot_Failed_walletError');
+    } else {
+      res.status(200).send('updateIot_Success');
+    }
+  } catch(err) {
+    console.log(err);
+    res.status(200).send('addIot_Failed');
+  }
+});
+
 router.post('/lampStateUpdate', async (req, res) => {
   const args = [req.body.devicekey, req.body.lamp];
 
@@ -151,16 +172,16 @@ async function callChainCode(fnName, isSubmit, ...args) {
     console.log(`Wallet path: ${walletPath}`);
 
     // Check to see if we've already enrolled the user.
-    const userExists = await wallet.exists('user2');
+    const userExists = await wallet.exists('user1');
     if (!userExists) {
-        console.log('An identity for the user "user2" does not exist in the wallet');
+        console.log('An identity for the user "user1" does not exist in the wallet');
         console.log('Run the registerUser.js application before retrying');
         return 'walletError';
     }
 
     // Create a new gateway for connecting to our peer node.
     const gateway = new Gateway();
-    await gateway.connect(ccp, { wallet, identity: 'user2', discovery: { enabled: false } });
+    await gateway.connect(ccp, { wallet, identity: 'user1', discovery: { enabled: false } });
 
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork('mychannel');

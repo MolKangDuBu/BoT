@@ -71,6 +71,8 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 		return t.getUserInfo(stub, args)
 	} else if fn == "addIot" {
 		return t.addIot(stub, args)
+	} else if fn == "updateIot" {
+		return t.updateIot(stub, args)
 	} else if fn == "lampStateUpdate" {
 		return t.lampStateUpdate(stub, args)
 	} else if fn == "gasStateUpdate" {
@@ -272,9 +274,9 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 	keyIdx := strconv.Itoa(iotkey.Idx)
 
 	var lamp bool = false
-	var gas float64 = 0
-	var tmp int = 0
-	var hum int = 0
+	var gas float64 = -1
+	var tmp int = -1
+	var hum int = -1
 	var err error
 
 	if args[3] != "" {
@@ -319,56 +321,49 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 
 // Update IoT Info
 func (t *SmartContract) updateIot(stub shim.ChaincodeStubInterface, args []string) peer.Response {
-	if len(args) != 9 {
-		return shim.Error("Incorrect number of arguments. Expecting 9")
+	if len(args) != 10 {
+		return shim.Error("incorrectArgumentsExpecting10")
 	}
-	
-	var iotkey = IotKey{}
-	json.Unmarshal(iotKeyGenerate(stub), &iotkey)
-	keyIdx := strconv.Itoa(iotkey.Idx)
 
 	var lamp bool = false
-	var gas float64 = 0
-	var tmp int = 0
-	var hum int = 0
+	var gas float64 = -1
+	var tmp int = -1
+	var hum int = -1
 	var err error
 
-	if args[3] != "" {
-		lamp, err = strconv.ParseBool(args[3])
-	} 
-	
 	if args[4] != "" {
-		gas, err = strconv.ParseFloat(args[4], 64)
+		lamp, err = strconv.ParseBool(args[4])
 	} 
 	
-	if args[5] != ""  {
-		tmp, err = strconv.Atoi(args[5])
-		hum, err = strconv.Atoi(args[6])
+	if args[5] != "" {
+		gas, err = strconv.ParseFloat(args[5], 64)
+	} 
+	
+	if args[6] != ""  {
+		tmp, err = strconv.Atoi(args[6])
+		hum, err = strconv.Atoi(args[7])
 	}
 
 	if err != nil {
-		return shim.Error(fmt.Sprintf("Failed to record IoT catch: %s", iotkey))
+		return shim.Error("failedRecordIoTCatch")
 	}
 
 	// Setting to Korea Time
 	loc, err := time.LoadLocation("Asia/Seoul")
 	if err != nil {
-		return shim.Error(fmt.Sprintf("Failed to time locate"))
+		return shim.Error("failedTimeLocate")
 	}
 
 	now := time.Now().In(loc)
 	custom := now.Format("2006-01-02 15:04:05")
-	var keyString = iotkey.Devicekey + keyIdx
-	var iot = IoT{Devicekey: keyString, Device: args[0], UserId: args[1], Area: args[2], Lamp: lamp, Gas: gas, Tmp: tmp, Hum: hum, Date: custom, Feedback: args[7], Ip: args[8]}
+	var iot = IoT{Devicekey: args[0], Device: args[1], UserId: args[2], Area: args[3], Lamp: lamp, Gas: gas, Tmp: tmp, Hum: hum, Date: custom, Feedback: args[8], Ip: args[9]}
 	iotAsBytes, _ := json.Marshal(iot)
 	
 	
-	err = stub.PutState(keyString, iotAsBytes)
+	err = stub.PutState(args[0], iotAsBytes)
 	if err != nil {
-		return shim.Error(fmt.Sprintf("Failed to record IoT catch: %s", iotkey))
+		return shim.Error("failedRecordIoTCatch")
 	}
-	iotKeyAsBytes, _ := json.Marshal(iotkey)
-	stub.PutState("latestIotKey", iotKeyAsBytes)
 
 	return shim.Success(nil)
 }
@@ -608,3 +603,65 @@ func main() {
 	}
 }
 
+
+// Get Transaction's History
+func (t *SmartContract) getHistory(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+
+	if len(args) < 1 {
+	   return shim.Error("incorrectArgumentsExpecting1")
+	}
+	keyName := args[0]
+	// 로그 남기기
+	fmt.Println("getHistory:" + keyName)
+ 
+	resultsIterator, err := stub.GetHistoryForKey(keyName)
+	if err != nil {
+	   return shim.Error(err.Error())
+	}
+	defer resultsIterator.Close()
+ 
+	// buffer is a JSON array containing historic values for the marble
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+ 
+	bArrayMemberAlreadyWritten := false
+	for resultsIterator.HasNext() {
+	   response, err := resultsIterator.Next()
+	   if err != nil {
+		  return shim.Error(err.Error())
+	   }
+	   if bArrayMemberAlreadyWritten == true {
+		  buffer.WriteString(",")
+	   }
+	   buffer.WriteString("{\"TxId\":")
+	   buffer.WriteString("\"")
+	   buffer.WriteString(response.TxId)
+	   buffer.WriteString("\"")
+ 
+	   buffer.WriteString(", \"Value\":")
+	   if response.IsDelete {
+		  buffer.WriteString("null")
+	   } else {
+		  buffer.WriteString(string(response.Value))
+	   }
+ 
+	   buffer.WriteString(", \"Timestamp\":")
+	   buffer.WriteString("\"")
+	   buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
+	   buffer.WriteString("\"")
+ 
+	   buffer.WriteString(", \"IsDelete\":")
+	   buffer.WriteString("\"")
+	   buffer.WriteString(strconv.FormatBool(response.IsDelete))
+	   buffer.WriteString("\"")
+ 
+	   buffer.WriteString("}")
+	   bArrayMemberAlreadyWritten = true
+	}
+	buffer.WriteString("]")
+ 
+	// 로그 남기기
+	fmt.Println("getHistory returning:\n" + buffer.String() + "\n")
+ 
+	return shim.Success(buffer.Bytes())
+ }

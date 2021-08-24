@@ -81,6 +81,8 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 		return t.tmpHumStateUpdate(stub, args)
 	} else if fn == "iotFind" {
 		return t.iotFind(stub, args)
+	} else if fn == "iotFindByArea" {
+		return t.iotFindByArea(stub, args)
 	} else if fn == "queryAllIoTs" {
 		return t.queryAllIoTs(stub)
 	}
@@ -523,6 +525,67 @@ func (t *SmartContract) iotFind(stub shim.ChaincodeStubInterface, args []string)
 	}
 	return shim.Success(buffer.Bytes())
 }
+
+
+// Find Specific User's IoT Info From UserId Include IoT State
+func (t *SmartContract) iotFindByArea(stub shim.ChaincodeStubInterface, args []string) peer.Response {
+	if len(args) != 2 {
+		return shim.Error("incorrectArgumentsExpecting2")
+	}
+
+	iotKeyAsBytes, _ := stub.GetState("latestIotKey")
+	iotkey := IotKey{}
+	json.Unmarshal(iotKeyAsBytes, &iotkey)
+	idxStr := strconv.Itoa(iotkey.Idx + 1)
+
+	var startKey = "IoT0"
+	var endKey = iotkey.Devicekey + idxStr
+
+	resultIter, err := stub.GetStateByRange(startKey, endKey)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer resultIter.Close()
+
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
+	bArrayMemberAlreadyWritten := false
+
+	for resultIter.HasNext() {
+		queryResponse, err := resultIter.Next()
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		iot := IoT{}
+		json.Unmarshal(queryResponse.Value, &iot)
+
+		if iot.UserId == args[0] {
+			if iot.Area == args[1] {
+				if bArrayMemberAlreadyWritten == true {
+					buffer.WriteString(",")
+				}
+				buffer.WriteString("{\"Key\":")
+				buffer.WriteString("\"")
+				buffer.WriteString(queryResponse.Key)
+				buffer.WriteString("\"")
+			
+				// Record is a JSON object, so we write as-is
+				buffer.WriteString(", \"Record\":")		
+				buffer.WriteString(string(queryResponse.Value))
+				buffer.WriteString("}")
+				bArrayMemberAlreadyWritten = true
+			}
+	
+		}		
+	}
+
+	buffer.WriteString("]")
+	if buffer.Len() == 2 {
+		return shim.Error("notExistUseridOrArea")
+	}
+	return shim.Success(buffer.Bytes())
+}
+
 
 // Show All State of IoT
 func (t *SmartContract) queryAllIoTs(stub shim.ChaincodeStubInterface) peer.Response {

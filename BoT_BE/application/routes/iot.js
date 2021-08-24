@@ -144,8 +144,27 @@ router.post('/iotFind', async (req, res) => {
   }
 });
 
-router.post('/queryAllIoTs', async (req, res) => {
 
+router.post('/iotFindByArea', async (req, res) => {
+  const args = [req.body.userId, req.body.area];
+  try {
+    const result = await callChainCode('iotFindByArea', false, ...args);
+    if (result == 'incorrectArgumentsExpecting1') {
+      res.status(200).send('iotFindByArea_Failed_incorrectArgumentsExpecting1');
+    } else if (result == 'notExistUseridOrArea') {
+      res.status(200).send('iotFindByArea_Failed_notExistUseridOrArea');
+    } else if (result == 'walletError') {
+      res.status(200).send('iotFindByArea_Failed_walletError');
+    } else {
+      res.status(200).json(JSON.parse(result));
+    }
+  } catch(err) {
+    console.log(err);
+    res.status(200).send('iotFindByArea_Failed');
+  }
+});
+
+router.post('/queryAllIoTs', async (req, res) => {
   try {
     const result = await callChainCode('queryAllIoTs', false);
     if (result == 'getStateByRangeError') {

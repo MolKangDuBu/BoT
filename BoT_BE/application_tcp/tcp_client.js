@@ -1,7 +1,7 @@
-const net = require('net');
+var net = require('net');
 
-const port = 22485;
-const host = "192.168.0.11";
+var port = 3001;
+var host = "";
 
 
 var socket = net.connect({
@@ -12,34 +12,27 @@ var socket = net.connect({
 socket.setEncoding('utf8');
 
 // Arduino connection
-socket.on('connect', () => {
+socket.on('connect', function() {
     console.log("connected to server");
 
     
-    setTimeout( () => {
-        socket.write('ON');
+    
+    setTimeout( function() {
+        socket.write('tmpHum,IoT5,11,11');
     }, 1000);
 
-    if(type == 'true') {
-        setTimeout( () => {
-            socket.write('ON');
-        }, 1000);
-    } else if(type == 'false') {
-        setTimeout( () => {
-            socket.write('OFF');
-        }, 1000);
-    }      
+          
 });
 
-socket.on('data', (data) => {
+socket.on('data', function(data) {
     console.log(data);
 });
 
-socket.on('close', () => {
+socket.on('close', function()  {
     console.log('close');
 });
 
 
-socket.on('error', (err) => {
+socket.on('error', function(err) {
     console.log('on error: ', err.code);
 });

@@ -20,13 +20,13 @@ var server = net.createServer(function(socket) {
 	// print data from client
 	socket.on('data', async function (data) {
 		try {			
-			// need 3 args (type of iot, key, state)
+			// need 3 args (devicekey, device, key, data)
 			const args = data.split(',');
 			var result;
-			if(args[1].includes('gas')) {
-				result = await callChainCode('gasStateUpdate', true, args[2], args[3]);
-			} else if(args[1].includes('tmpHum')) {
-				result = await callChainCode('tmpHumStateUpdate', true, args[2], args[3], args[4]);
+			if(args[0].includes('gas')) {
+				result = await callChainCode('gasStateUpdate', true, args[1], args[2]);
+			} else if(args[0].includes('tmpHum')) {
+				result = await callChainCode('tmpHumStateUpdate', true, args[1], args[2], args[3]);
 			}
 		} catch(err) {
 			console.log(err);
@@ -43,7 +43,7 @@ var server = net.createServer(function(socket) {
 
 	// send message to client
 	setTimeout(() => {
-		socket.write('welcome to server');
+		socket.write('BoT Server Connected');
 	}, 500);
 	
 	setTimeout(() => {
@@ -65,21 +65,21 @@ server.listen(port, host, function () {
 async function callChainCode(fnName, isSubmit, ...args) {
 	try {
 	  // Create a new file system based wallet for managing identities.
-	  const walletPath = path.join(process.cwd(), 'wallet');
+	  const walletPath = path.join(process.cwd(), '..', 'application', 'wallet');
 	  const wallet = new FileSystemWallet(walletPath);
 	  console.log(`Wallet path: ${walletPath}`);
   
 	  // Check to see if we've already enrolled the user.
-	  const userExists = await wallet.exists('user2');
+	  const userExists = await wallet.exists('user1');
 	  if (!userExists) {
-		  console.log('An identity for the user "user2" does not exist in the wallet');
+		  console.log('An identity for the user "user1" does not exist in the wallet');
 		  console.log('Run the registerUser.js application before retrying');
 		  return;
 	  }
   
 	  // Create a new gateway for connecting to our peer node.
 	  const gateway = new Gateway();
-	  await gateway.connect(ccp, { wallet, identity: 'user2', discovery: { enabled: false } });
+	  await gateway.connect(ccp, { wallet, identity: 'user1', discovery: { enabled: false } });
   
 	  // Get the network (channel) our contract is deployed to.
 	  const network = await gateway.getNetwork('mychannel');
@@ -98,7 +98,12 @@ async function callChainCode(fnName, isSubmit, ...args) {
 	  return result;
   
 	} catch(err) {
-	  console.error(`Failed to create transaction: ${error}`);
-	  return 'error occurred!!!';
+		if (err.message.indexOf('message=') == -1) {
+			return err.message
+		} else {
+			var index = err.message.split('message=')
+			var index2 = index[1].split(' ')
+			return index2[0];
+		}
 	}
 }

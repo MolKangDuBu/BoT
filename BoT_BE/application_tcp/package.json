@@ -1,5 +1,5 @@
 {
-    "name": "BoT",
+    "name": "bot",
     "version": "1.0.0",
     "description": "BoT application implemented in JavaScript",
     "engines": {

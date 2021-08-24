@@ -8,20 +8,20 @@ PeerOrgs:
   - Name: Org1
     Domain: org1.bot.com
     Template:
-      Count: 1
+      Count: 2
     Users:
-      Count: 1
+      Count: 2
 
   - Name: Org2
     Domain: org2.bot.com
     Template:
-      Count: 1
+      Count: 2
     Users:
-      Count: 1
+      Count: 2
 
   - Name: Org3
     Domain: org3.bot.com
     Template:
-      Count: 1
+      Count: 2
     Users:
-      Count: 1
+      Count: 2

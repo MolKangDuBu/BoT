@@ -24,10 +24,9 @@ fi
 
 # clean the keystore
 rm -rf ./application/hfc-key-store
-rm -rf ./application_IoT/hfc-key-store
 # 3. 네트워크 재실행 시 key file이 들어있는 wallet directory 삭제
 rm -rf ./application/wallet/*
-rm -rf ./application_IoT/wallet/*
+
 
 # launch network; create channel and join peer to channel
 cd ./basic-network
@@ -39,10 +38,12 @@ docker-compose -f ./docker-compose.yml up -d cli
 docker ps -a
 
 # 3. 배포할 체인코드 이름 변경
+# Chaincode org1 install
 docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.bot.com/users/Admin@org1.bot.com/msp" cli peer chaincode install -n botcc -v 1.0 -p "$CC_SRC_PATH" -l "$CC_RUNTIME_LANGUAGE"
-docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.bot.com/users/Admin@org1.bot.com/msp" cli peer chaincode instantiate -o orderer.bot.com:7050 -C mychannel -n botcc -l "$CC_RUNTIME_LANGUAGE" -v 1.0 -c '{"Args":[]}' -P "OR ('Org1MSP.member','Org2MSP.member')"
-sleep 10
 
+# Chaincode org1 instantiate
+docker exec -e "CORE_PEER_LOCALMSPID=Org1MSP" -e "CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.bot.com/users/Admin@org1.bot.com/msp" cli peer chaincode instantiate -o orderer.bot.com:7050 -C mychannel -n botcc -l "$CC_RUNTIME_LANGUAGE" -v 1.0 -c '{"Args":[]}' -P "OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')"
+sleep 5
 
 cat <<EOF
 

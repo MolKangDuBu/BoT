@@ -29,8 +29,10 @@ router.post('/addUser', async (req, res) => {
       res.status(200).send('addUser_Failed_alreadyExistingId');
     } else if (result == 'failedToRecordUser') {
       res.status(200).send('addUser_Failed');
-    } else {
+    } else if (result == "") {
       res.status(200).send('addUser_Success');
+    } else {
+      res.status(200).send('addUser_Failed');
     }
   } catch(err) {
     console.log('this is err\n', err);
@@ -53,8 +55,10 @@ router.post('/login', async (req, res) => {
       res.status(200).send('login_Failed_incorrectPw');
     } else if (result == 'walletError') {
       res.status(200).send('login_Failed_walletError');
-    } else {
+    } else if (result == ""){
       res.status(200).send('login_Success'); 
+    } else {
+      res.status(200).send('login_Failed');
     }
     
   } catch(err) {
@@ -99,6 +103,7 @@ router.post('/getUserInfo', async (req, res) => {
   }
 });
 
+
 // Call Chaincode
 async function callChainCode(fnName, isSubmit, ...args) {
   try {
@@ -135,8 +140,9 @@ async function callChainCode(fnName, isSubmit, ...args) {
     }
     return result;
 
+    // Chaincoe Error
   } catch(err) {
-    //console.error(`Failed to create transaction: ${err}`);    
+    //console.error(`Failed to create transaction: ${err}`);
     if (err.message.indexOf('message=') == -1) {
       return err.message
     } else {

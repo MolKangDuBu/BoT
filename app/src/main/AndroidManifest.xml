@@ -19,6 +19,7 @@
         </activity>
         <activity android:name=".loading"/>
         <activity android:name=".Area_Main"/>
+        <activity android:name=".Main_Activity"/>
     </application>
 
 </manifest>

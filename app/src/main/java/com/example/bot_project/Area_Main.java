@@ -56,6 +56,7 @@ public class Area_Main extends AppCompatActivity implements NavigationView.OnNav
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout,
                         new Area04_Fragment()).addToBackStack(null).commit();
                 break;
+
         }
 
 
@@ -83,16 +84,20 @@ public class Area_Main extends AppCompatActivity implements NavigationView.OnNav
         if(id==R.id.menu_item1){
             Log.d("input test", "test : 1");
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout,
-                    new Area01_Fragment()).addToBackStack(null).commit();
+                    new AddIot_Fragment()).addToBackStack(null).commit();
         }else if(id ==R.id.menu_item2){
             Log.d("input test", "test : 2");
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout,
-                    new Area02_Fragment()).addToBackStack(null).commit();
+                    new Area01_Fragment()).addToBackStack(null).commit();
         }else if(id == R.id.menu_item3){
             Log.d("input test", "test : 3");
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout,
-                    new Area03_Fragment()).addToBackStack(null).commit();
+                    new Area02_Fragment()).addToBackStack(null).commit();
         }else if(id == R.id.menu_item4) {
+            Log.d("input test", "test : 4");
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout,
+                    new Area03_Fragment()).addToBackStack(null).commit();
+        }else if(id == R.id.menu_item5) {
             Log.d("input test", "test : 4");
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_layout,
                     new Area04_Fragment()).addToBackStack(null).commit();

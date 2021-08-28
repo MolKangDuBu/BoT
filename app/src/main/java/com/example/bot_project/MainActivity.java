@@ -1,108 +1,69 @@
+
 package com.example.bot_project;
 
-import androidx.appcompat.app.AppCompatActivity;
+        import android.content.Intent;
+        import android.os.Bundle;
+        import android.util.Log;
+        import android.view.View;
+        import android.widget.Button;
+        import android.widget.EditText;
+        import android.widget.TextView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageButton;
+        import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+        import com.android.volley.AuthFailureError;
+        import com.android.volley.Request;
+        import com.android.volley.Response;
+        import com.android.volley.VolleyError;
+        import com.android.volley.toolbox.StringRequest;
+        import com.android.volley.toolbox.Volley;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+        import java.util.HashMap;
+        import java.util.Map;
 
-import java.util.HashMap;
-import java.util.Map;
+public class MainActivity extends AppCompatActivity {//Login
 
-public class MainActivity extends AppCompatActivity {
-
-    public ImageButton Imb_user;
-    public ImageButton Area01;
-    public ImageButton Area02;
-    public ImageButton Area03;
-    public ImageButton Area04;
-    public Intent intent;
+    public EditText et_login_ID;
+    public EditText et_login_PW;
+    public Button btn_login_login;
+    public TextView tv_login_signup;
+    public TextView tv_login_forgotpw;
+    public String ID;
+    public String PW;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-        intent = new Intent(this, loading.class);
-        startActivity(intent);
+        setContentView(R.layout.login);
+        Intent intent1 = new Intent(this, loading.class);
+        startActivity(intent1);
 
-        intent  = new Intent(getApplicationContext(), Area_Main.class);
-        Area01 = (ImageButton)findViewById(R.id.imb_Area01);
-        Area02 = (ImageButton)findViewById(R.id.imb_Area02);
-        Area03 = (ImageButton)findViewById(R.id.imb_Area03);
-        Area04 = (ImageButton)findViewById(R.id.imb_Area04);
-        Imb_user = (ImageButton)findViewById(R.id.imb_user);
-
-
-
-
-        if(AppHelper.requestQueue != null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
-        } //RequestQueue 생성
-
-        //버튼에 따라 다른 인자값을 전달하여 몇번째 Area인지 확인
-        Area01.setOnClickListener(new View.OnClickListener() {//Area01
-            @Override
-            public void onClick(View view) {
-              intent.putExtra("number", 1);
-                startActivity(intent);
-            }
-        });
-
-        Area02.setOnClickListener(new View.OnClickListener() {//Area02
-            @Override
-            public void onClick(View view) {
-                intent.putExtra("number", 2);
-                startActivity(intent);
-
-            }
-        });
-
-        Area03.setOnClickListener(new View.OnClickListener() {//Area03
-            @Override
-            public void onClick(View view) {
-                intent.putExtra("number", 3);
-                startActivity(intent);
-            }
-        });
-
-        Area04.setOnClickListener(new View.OnClickListener() {//Area04
-            @Override
-            public void onClick(View view) {
-                intent.putExtra("number", 4);
-                startActivity(intent);
-            }
-        });
-
-        Imb_user.setOnClickListener(new View.OnClickListener() {
+        et_login_ID = findViewById(R.id.et_login_ID);
+        et_login_PW = findViewById(R.id.et_login_pw);
+        btn_login_login = findViewById(R.id.btn_login_login);
+        Intent intent = new Intent(this, Main_Activity.class);
+        btn_login_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                ID= et_login_ID.getText().toString();
+                PW = et_login_PW.getText().toString();
+                startActivity(intent);
+                //Login();
             }
         });
+
+
     }
+    private void Login() {
 
-
-    private void start() {
-        Log.d("volleytest", "request");
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf("http://121.153.155.36:3000/api/addUser"),
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
 
-                            Log.d("volleytest", response.toString());
+                        Log.d("volleytest", response.toString());
 
                     }
                 },
@@ -136,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         AppHelper.requestQueue.add(stringRequest);
 
     }
+
 
 
 }

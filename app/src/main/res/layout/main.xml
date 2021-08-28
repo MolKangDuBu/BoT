@@ -48,6 +48,7 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
                 android:src="@drawable/user"
+                android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tv_appname"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -79,6 +80,7 @@
         android:scaleType="fitCenter"
         android:src="@drawable/area"
         android:background="@drawable/corner_round"
+
         app:layout_constraintBottom_toBottomOf="@+id/imb_Area02"
         app:layout_constraintEnd_toStartOf="@+id/imb_Area02"
         app:layout_constraintHorizontal_bias="0.504"

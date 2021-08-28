@@ -31,19 +31,33 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageButton
-                android:id="@+id/imb_Area04_iot"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/area01_list"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="16dp"
-                android:scaleType="fitCenter"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_title_Area04"
-                app:layout_constraintVertical_bias="0.545"
-                app:srcCompat="@drawable/iotact" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_title_Area04">
+
+
+            </androidx.recyclerview.widget.RecyclerView>
+<!--            <ImageButton-->
+<!--                android:id="@+id/imb_Area04_iot"-->
+<!--                android:layout_width="80dp"-->
+<!--                android:layout_height="80dp"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:layout_marginBottom="16dp"-->
+<!--                android:scaleType="fitCenter"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/tv_title_Area04"-->
+<!--                app:layout_constraintVertical_bias="0.545"-->
+<!--                app:srcCompat="@drawable/iotact" />-->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>

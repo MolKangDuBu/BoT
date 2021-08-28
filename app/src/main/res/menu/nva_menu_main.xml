@@ -5,14 +5,17 @@
 
     <item
         android:id="@+id/menu_item1"
-        android:title="Area01" />
+        android:title="Add IoT" />
     <item
         android:id="@+id/menu_item2"
-        android:title="Area02" />
+        android:title="Area01" />
     <item
         android:id="@+id/menu_item3"
-        android:title="Area03" />
+        android:title="Area02" />
     <item
         android:id="@+id/menu_item4"
+        android:title="Area03" />
+    <item
+        android:id="@+id/menu_item5"
         android:title="Area04" />
 </menu>

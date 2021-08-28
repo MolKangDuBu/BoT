@@ -18,10 +18,3 @@ PeerOrgs:
       Count: 2
     Users:
       Count: 2
-
-  - Name: Org3
-    Domain: org3.bot.com
-    Template:
-      Count: 2
-    Users:
-      Count: 2

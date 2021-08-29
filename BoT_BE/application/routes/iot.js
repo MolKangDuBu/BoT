@@ -13,7 +13,7 @@ const ccpJSON = fs.readFileSync(ccpPath, 'utf8');
 const ccp = JSON.parse(ccpJSON);
 
 const port = 22485;
-const host = "192.168.0.11";
+var host = "192.168.0.150";
 
 
 /* GET users listing. */
@@ -70,11 +70,13 @@ router.post('/updateIot', async (req, res) => {
 
 router.post('/lampStateUpdate', async (req, res) => {
   const args = [req.body.devicekey, req.body.lamp];
-
   try {
+    const result = await callChainCode('lampStateUpdate', true, ...args);
+    const obj = JSON.parse(result)
+
     var socket = net.connect({
       port: port,
-      host: host
+      host: obj.Ip
     });
     
     socket.setEncoding('utf8');
@@ -109,7 +111,7 @@ router.post('/lampStateUpdate', async (req, res) => {
       console.log('on error: ', err.code);
     });
     
-    const result = await callChainCode('lampStateUpdate', true, ...args);
+
     if (result == 'incorrectArgumentsExpecting2') {
       res.status(200).send('lampStateUpdate_Failed_incorrectArgumentsExpecting2');
     } else if (result == 'couldNotLocateIoT') {
@@ -120,10 +122,8 @@ router.post('/lampStateUpdate', async (req, res) => {
       res.status(200).send('lampStateUpdate_Failed');
     } else if (result == 'walletError') {
       res.status(200).send('lampStateUpdate_Failed_walletError');
-    } else if (result == "") {
-      res.status(200).send('lampStateUpdate_Success');
     } else {
-      res.status(200).send('lampStateUpdate_Failed');
+      res.status(200).send('lampStateUpdate_Success');
     }
   } catch(err) {
     console.log(err);
@@ -187,6 +187,7 @@ router.post('/queryAllIoTs', async (req, res) => {
     res.status(200).send('queryAllIoTs_Failed');
   }
 });
+
 
 // Call Chaincode
 async function callChainCode(fnName, isSubmit, ...args) {

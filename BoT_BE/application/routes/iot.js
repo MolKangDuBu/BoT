@@ -34,8 +34,10 @@ router.post('/addIot', async (req, res) => {
       res.status(200).send('addIot_Failed');
     } else if (result == 'walletError') {
       res.status(200).send('addIot_Failed_walletError');
-    } else {
+    } else if (result == "") {
       res.status(200).send('addIot_Success');
+    } else {
+      res.status(200).send('addIot_Failed');
     }
   } catch(err) {
     console.log(err);
@@ -55,8 +57,10 @@ router.post('/updateIot', async (req, res) => {
       res.status(200).send('updateIot_Failed');
     } else if (result == 'walletError') {
       res.status(200).send('updateIot_Failed_walletError');
-    } else {
+    } else if (result == "") {
       res.status(200).send('updateIot_Success');
+    } else {
+      res.status(200).send('updateIot_Failed');
     }
   } catch(err) {
     console.log(err);
@@ -116,8 +120,10 @@ router.post('/lampStateUpdate', async (req, res) => {
       res.status(200).send('lampStateUpdate_Failed');
     } else if (result == 'walletError') {
       res.status(200).send('lampStateUpdate_Failed_walletError');
-    } else {
+    } else if (result == "") {
       res.status(200).send('lampStateUpdate_Success');
+    } else {
+      res.status(200).send('lampStateUpdate_Failed');
     }
   } catch(err) {
     console.log(err);
@@ -207,6 +213,7 @@ async function callChainCode(fnName, isSubmit, ...args) {
 
     // Get the contract from the network.
     const contract = network.getContract('botcc');
+
 
     let result;
     if(isSubmit) {

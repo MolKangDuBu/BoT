@@ -85,6 +85,8 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 		return t.iotFindByArea(stub, args)
 	} else if fn == "queryAllIoTs" {
 		return t.queryAllIoTs(stub)
+	} else if fn == "getHistory" {
+		return t.getHistory(stub, args)
 	}
 
 	return shim.Error("Invalid Smart Contract function name.")
@@ -679,7 +681,7 @@ func (t *SmartContract) getHistory(stub shim.ChaincodeStubInterface, args []stri
  
 	resultsIterator, err := stub.GetHistoryForKey(keyName)
 	if err != nil {
-	   return shim.Error(err.Error())
+	   return shim.Error("resultiterError")
 	}
 	defer resultsIterator.Close()
  
@@ -691,7 +693,7 @@ func (t *SmartContract) getHistory(stub shim.ChaincodeStubInterface, args []stri
 	for resultsIterator.HasNext() {
 	   response, err := resultsIterator.Next()
 	   if err != nil {
-		  return shim.Error(err.Error())
+		  return shim.Error("resultiterError")
 	   }
 	   if bArrayMemberAlreadyWritten == true {
 		  buffer.WriteString(",")

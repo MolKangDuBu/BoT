@@ -22,14 +22,6 @@ Organizations:
             - Host: peer0.org2.bot.com
               Port: 7051
 
-    - &Org3
-        Name: Org3MSP
-        ID: Org3MSP
-        MSPDir: crypto-config/peerOrganizations/org3.bot.com/msp
-        AnchorPeers:
-            - Host: peer0.org3.bot.com
-              Port: 7051
-
 
 Application: &ApplicationDefaults
     Organizations:
@@ -61,7 +53,6 @@ Profiles:
                 Organizations:
                     - *Org1
                     - *Org2
-                    - *Org3
     Channel1:
         Consortium: SampleConsortium
         Application:
@@ -69,5 +60,4 @@ Profiles:
             Organizations:
                 - *Org1
                 - *Org2
-                - *Org3
 

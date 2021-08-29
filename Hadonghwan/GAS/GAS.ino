@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 
 #ifndef STASSID
-#define STASSID "olleh_WiFi_EFF1"    //  와이파이 이름
-#define STAPSK  "0000007898"    //  와이파이 비밀번호
+#define STASSID "SecurityLab(2.4)"    //  와이파이 이름
+#define STAPSK  "security915"  //와이파이 비밀번호
 #endif
 #define PIN_GAS A0
 /*와이파이*/
@@ -50,7 +50,7 @@ void loop() {
 
   WiFiClient client;
 
-  if (!client.connect("172.30.1.35", 22485)) {
+  if (!client.connect("192.168.0.12", 3001)) {
     Serial.println("Client disconnected");//서버 접속에 실패
       Serial.print("IOT3");
       Serial.print(",");
@@ -64,15 +64,10 @@ void loop() {
   else
   {
       String recevbline;
-      client.write("IOT3");
-      client.write(",");
-      client.write("GAS");
-      client.write(",");
-      client.print(tostring);
-      client.write("\n");
-      Serial.print("IOT3");
+      client.print("IoT0,gas,"+tostring);
+      Serial.print("IoT0");
       Serial.print(",");
-      Serial.print("GAS");
+      Serial.print("gas");
       Serial.print(",");
       Serial.print(tostring);
       Serial.println();
@@ -80,5 +75,5 @@ void loop() {
      Serial.println("Client Connected");
      Serial.println(recevbline);
     }   
-       delay(5000);
+       delay(10000);
   }

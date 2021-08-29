@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
 
 #ifndef STASSID
-#define STASSID "olleh_WiFi_EFF1"    //  와이파이 이름
-#define STAPSK  "0000007898"    //  와이파이 비밀번호
+#define STASSID "SecurityLab(2.4)"    //  와이파이 이름
+#define STAPSK  "security915"  //와이파이 비밀번호
 #endif
 #include <DHT.h>
 #define PIN_DHT 5
@@ -49,11 +49,15 @@ void setup() {
   pinMode(PIN_DHT,OUTPUT);
 }
 void loop() {
- int humidity = DHTsensor.readHumidity();
- int temp = DHTsensor.readTemperature();
+ double humidity = DHTsensor.readHumidity();
+ double temp = DHTsensor.readTemperature();
+ String HUM = "";
+ String TEMP ="";
+ HUM += humidity;
+ TEMP += temp;
  WiFiClient client;
 
-  if (!client.connect("172.30.1.35", 22485)) {
+  if (!client.connect("192.168.0.12", 3001)) {
       delay(3000);
      Serial.print("IOT2");
      Serial.print(",");
@@ -73,17 +77,11 @@ void loop() {
      Serial.print(" Temperature : ");
      Serial.print(temp);
      Serial.println(" ºC");
-    
-     client.write("IOT2");
-     client.write(",");
-     client.write("HUM/TEMP");
-     client.write(",");
-     client.write(humidity);
-     client.write(",");
-     client.write(temp);
-     client.write("\n");
+     client.print("IoT1,tmpHum,"+HUM+","+TEMP);
+     recevbline = client.readStringUntil('\r');
      Serial.println("Client Connected");
      Serial.println(recevbline);
+     
   }
   delay(5000);
 }

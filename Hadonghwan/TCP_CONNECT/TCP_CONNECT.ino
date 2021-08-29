@@ -1,8 +1,8 @@
 #include <ESP8266WiFi.h>
-
+#define PIN D6
 #ifndef STASSID
-#define STASSID "olleh_WiFi_EFF1"    //  와이파이 이름
-#define STAPSK  "0000007898"  //와이파이 비밀번호
+#define STASSID "SecurityLab(2.4)"    //  와이파이 이름
+#define STAPSK  "security915"  //와이파이 비밀번호
 #endif
 
 /*와이파이*/
@@ -39,7 +39,7 @@ void setup() {
   Serial.println("Server On");
   Serial.print("Port: ");
   Serial.println(tcpPort);
-  pinMode(13,OUTPUT);
+  pinMode(PIN,OUTPUT);
 }
 
 String str ="";
@@ -47,8 +47,7 @@ String on = "ON";
 String off = "OFF";
 void loop() {
   boolean type = true;
-  WiFiClient client = wifiServer.available();                    
-  digitalWrite(13, LOW);   
+  WiFiClient client = wifiServer.available();
   if (client) {
     Serial.println("Client connected");
 
@@ -66,14 +65,10 @@ void loop() {
         if(type){                      
           str += c;
           if(str.equals(on)){
-            delay(1000);
-            digitalWrite(13, HIGH);
-            Serial.println(str);
-            str = "";
-          }else if(str.equals(off)){
-            delay(1000);           
-            digitalWrite(13, LOW);
-            Serial.println(str);
+            digitalWrite(PIN, HIGH);
+            str = "";                       
+          }else if(str.equals(off)){         
+            digitalWrite(PIN, LOW);
             str = "";
           }
         }        

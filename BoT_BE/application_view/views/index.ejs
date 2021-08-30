@@ -243,11 +243,11 @@
         const result = await fetch('/api/queryAllIoTs');
         const json = await result.json();
         if(json.length === 0) {
-          $('#queryAllIoTs #result').html(`<font color="red">Unable to query copyright.</font>`);
+          $('#queryAllIoTs #result').html(`<font color="red">Unable to query IoTs.</font>`);
           return;
         }
         let table = '<table class="table-bot"><thead><tr><th>IoT 장비 고유키</th><th>장비 종류</th><th>유저 ID</th><th>오류사항</th></tr></thead><tbody>';
-        for(let i = 0; i < json.length; i++) {
+        for(let i = json.length-1; i >= 0; i--) {
           table += '<tr>';
           table += `<td>${json[i].Key}</td>`;
           table += `<td>${json[i].Record.device}</td>`;
@@ -270,11 +270,11 @@
         const result = await fetch('/api/queryAllUsers');
         const json = await result.json();
         if(json.length === 0) {
-          $('#queryAllUsers #result').html(`<font color="red">Unable to query copyright.</font>`);
+          $('#queryAllUsers #result').html(`<font color="red">Unable to query users.</font>`);
           return;
         }
         let table = '<table class="table-bot"><thead><tr><th>유저 ID</th><th>유저 이름</th><th>소속</th><th>유저 mail</th><th>전화번호</th></tr></thead><tbody>';
-        for(let i = 0; i < json.length; i++) {
+        for(let i = json.length-1; i >= 0; i--) {
           table += '<tr>';
           table += `<td>${json[i].Record.id}</td>`;
           table += `<td>${json[i].Record.name}</td>`;
@@ -299,7 +299,7 @@
         const result = await fetch(`/api/getHistory/${iotNo}`);
         const json = await result.json();
         let table = '<table class="table-bot"><thead><tr><th>트랜잭션 ID</th><th>장비</th><th>타임스탬프</th><th>삭제여부</th></tr></thead><tbody>';
-        for(let i = 0; i < json.length; i++) {
+        for(let i = json.length-1; i >= 0; i--) {
           table += '<tr>';
           table += `<td>${json[i].TxId}</td>`;
           table += `<td>${json[i].Value.device}</td>`;

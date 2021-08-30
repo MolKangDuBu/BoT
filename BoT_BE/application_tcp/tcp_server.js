@@ -23,10 +23,10 @@ var server = net.createServer(function(socket) {
 			// need 3 args (devicekey, device, key, data)
 			const args = data.split(',');
 			var result;
-			if(args[0].includes('gas')) {
-				result = await callChainCode('gasStateUpdate', true, args[1], args[2]);
-			} else if(args[0].includes('tmpHum')) {
-				result = await callChainCode('tmpHumStateUpdate', true, args[1], args[2], args[3]);
+			if(args[1].includes('gas')) {
+				result = await callChainCode('gasStateUpdate', true, args[0], args[2]);
+			} else if(args[1].includes('tmpHum')) {
+				result = await callChainCode('tmpHumStateUpdate', true, args[0], args[2], args[3]);
 			}
 		} catch(err) {
 			console.log(err);

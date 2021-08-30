@@ -41,8 +41,8 @@ type IoT struct {
 	Ip			string `json:ip`
 	Area		string `json:"area"`
 	Gas			float64 `json:"gas"`
-	Tmp			int `json:"tmp"`
-	Hum			int `json:"hum"`
+	Tmp			float64 `json:"tmp"`
+	Hum			float64 `json:"hum"`
 	Lamp		bool `json:"lamp"`
 } 
 
@@ -88,7 +88,7 @@ func (t *SmartContract) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
 	} else if fn == "getHistory" {
 		return t.getHistory(stub, args)
 	}
-
+	
 	return shim.Error("Invalid Smart Contract function name.")
 }
 
@@ -279,8 +279,8 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 
 	var lamp bool = false
 	var gas float64 = -1
-	var tmp int = -1
-	var hum int = -1
+	var tmp float64 = -1
+	var hum float64 = -1
 	var err error
 
 	if args[3] != "" {
@@ -292,8 +292,8 @@ func (t *SmartContract) addIot(stub shim.ChaincodeStubInterface, args []string) 
 	} 
 	
 	if args[5] != ""  {
-		tmp, err = strconv.Atoi(args[5])
-		hum, err = strconv.Atoi(args[6])
+		tmp, err = strconv.ParseFloat(args[5], 64)
+		hum, err = strconv.ParseFloat(args[6], 64)
 	}
 
 	if err != nil {
@@ -331,8 +331,8 @@ func (t *SmartContract) updateIot(stub shim.ChaincodeStubInterface, args []strin
 
 	var lamp bool = false
 	var gas float64 = -1
-	var tmp int = -1
-	var hum int = -1
+	var tmp float64 = -1
+	var hum float64 = -1
 	var err error
 
 	if args[4] != "" {
@@ -344,8 +344,8 @@ func (t *SmartContract) updateIot(stub shim.ChaincodeStubInterface, args []strin
 	} 
 	
 	if args[6] != ""  {
-		tmp, err = strconv.Atoi(args[6])
-		hum, err = strconv.Atoi(args[7])
+		tmp, err = strconv.ParseFloat(args[6], 64)
+		hum, err = strconv.ParseFloat(args[7], 64)
 	}
 
 	if err != nil {
@@ -371,7 +371,6 @@ func (t *SmartContract) updateIot(stub shim.ChaincodeStubInterface, args []strin
 
 	return shim.Success(nil)
 }
-
 
 // Lamp State Update (on, off)
 func (t *SmartContract) lampStateUpdate(stub shim.ChaincodeStubInterface, args[] string) peer.Response {
@@ -402,7 +401,7 @@ func (t *SmartContract) lampStateUpdate(stub shim.ChaincodeStubInterface, args[]
 	if err != nil {
 		return shim.Error("failedToChangeIoTholder")
 	}
-	return shim.Success(nil)
+	return shim.Success(iotAsBytes)
 
 }
 
@@ -459,8 +458,8 @@ func (t *SmartContract) tmpHumStateUpdate(stub shim.ChaincodeStubInterface, args
 
 	iot := IoT{}
 	json.Unmarshal(iotAsBytes, &iot)
-	iot.Tmp, _ = strconv.Atoi(args[1])
-	iot.Hum, _ = strconv.Atoi(args[2])
+	iot.Tmp, _ = strconv.ParseFloat(args[1], 64)
+	iot.Hum, _ = strconv.ParseFloat(args[2], 64)
 	iot.Date = custom
 	iotAsBytes, _ = json.Marshal(iot)
 	err = stub.PutState(args[0], iotAsBytes)
@@ -685,6 +684,12 @@ func (t *SmartContract) getHistory(stub shim.ChaincodeStubInterface, args []stri
 	}
 	defer resultsIterator.Close()
  
+	// Setting to Korea Time
+	loc, err := time.LoadLocation("Asia/Seoul")
+	if err != nil {
+		return shim.Error("failedTimeLocate")
+	}
+
 	// buffer is a JSON array containing historic values for the marble
 	var buffer bytes.Buffer
 	buffer.WriteString("[")
@@ -709,10 +714,15 @@ func (t *SmartContract) getHistory(stub shim.ChaincodeStubInterface, args []stri
 	   } else {
 		  buffer.WriteString(string(response.Value))
 	   }
- 
+
+	   now := time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).In(loc)
+	   custom := now.Format("2006-01-02 15:04:05")
+
 	   buffer.WriteString(", \"Timestamp\":")
 	   buffer.WriteString("\"")
-	   buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
+	   buffer.WriteString(custom)
+
+
 	   buffer.WriteString("\"")
  
 	   buffer.WriteString(", \"IsDelete\":")

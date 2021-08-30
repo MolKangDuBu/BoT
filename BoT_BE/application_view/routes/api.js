@@ -63,6 +63,8 @@ router.get('/getHistory/:iotNo', async (req, res) => {
       res.status(400).send('getHistory_Failed_incorrectArgumentsExpecting1');
     } else if (result == 'resultiterError') {
       res.status(400).send('getHistory_Failed');
+    } else if (result == 'failedTimeLocate') {
+      res.status(200).send('getHistory_Failed');
     } else if (result == 'walletError') {
       res.status(400).send('getHistory_Failed_walletError');
     } else {

@@ -5,7 +5,7 @@
 * Tools/Software:
   - Android
 * Enviroments:
-  - Android Gradle Plugin Version 4.1.2
+  - Android Gradle Plugin Version 4.1.2 
   - Gradle Version 6.5
   - minSdkVersion 16
   - targetSdkVersion 30

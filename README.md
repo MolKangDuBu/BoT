@@ -1,5 +1,5 @@
 # BoT(Blockchain of Things) - 블록체인을 이용한 IoT 보안 고도화
-# Back-end(Hyperledger Fabric Network, chaincoe ...)
+# Front-end(Android)
 ## Precondition - 필요한 것들
 * OS: Window10
 * Tools/Software:

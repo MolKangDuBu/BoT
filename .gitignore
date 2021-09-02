@@ -1,3 +1,11 @@
+# Android
+.gradle/
+.idea/
+app/
+.gitignore
+local.properties
+
+# Back-End
 BoT_BE/application/wallet
 BoT_BE/application/node_modules
 BoT_BE/application_view/wallet

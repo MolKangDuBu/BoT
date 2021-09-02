@@ -3,7 +3,7 @@
 ## Precondition - 필요한 것들
 * OS: Window10
 * Tools/Software:
- - Android
+ -Android
 * Enviroments:
  - Android Gradle Plugin Version 4.1.2
  - Gradle Version 6.5

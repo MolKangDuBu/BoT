@@ -3,12 +3,12 @@
 ## Precondition - 필요한 것들
 * OS: Window10
 * Tools/Software:
-- Android
+ - Android
 * Enviroments:
-- Android Gradle Plugin Version 4.1.2
-- Gradle Version 6.5
-- minSdkVersion 16
-- targetSdkVersion 30
+ - Android Gradle Plugin Version 4.1.2
+ - Gradle Version 6.5
+ - minSdkVersion 16
+ - targetSdkVersion 30
 
 ## Description - 설명
 * Use Constraint Layout to place objects fluidly according to the aspect ratio.

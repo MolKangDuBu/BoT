@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools ="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item
+        android:id="@+id/menu_item1"
+        android:title="Add IoT" />
+    <item
+        android:id="@+id/menu_item2"
+        android:title="Area01" />
+    <item
+        android:id="@+id/menu_item3"
+        android:title="Area02" />
+    <item
+        android:id="@+id/menu_item4"
+        android:title="Area03" />
+    <item
+        android:id="@+id/menu_item5"
+        android:title="Area04" />
+</menu>

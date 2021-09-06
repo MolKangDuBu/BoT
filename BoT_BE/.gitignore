@@ -1,0 +1,12 @@
+# Back-End
+application/wallet
+application/node_modules
+application_view/wallet
+application_view/node_modules
+application_tcp/node_modules
+basic-network/config/*
+basic-network/crypto-config/*
+explorer/organizations
+chaincode/botcc/go/chaincode
+chaincode/botcc/go/go.mod
+chaincode/botcc/go/go.sum

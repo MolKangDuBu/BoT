@@ -1,10 +1,12 @@
 package com.example.bot_project;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -33,13 +35,24 @@ public class Area02_Fragment extends Fragment {
 
 //    public ImageButton iot;
 //    public ImageButton thermometer;
-    public TextView Area02_working;
+public TextView Area02_working;
+    public TextView Area02_update;
     public TextView Area02_errormessage;
     public ImageView check;
     public Switch onoff;
     private RecyclerView listview;
     private Adapter adapter;
     private ArrayList<String> iotlist;
+    private ArrayList<String> devicekey;
+    private String lampkey;
+    private String lamp;
+    private String tmp;
+    private String hum;
+    private String date;
+    private String feedback;
+    private String gas;
+    private Check Network;
+    public Handler handler;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -51,163 +64,125 @@ public class Area02_Fragment extends Fragment {
     public void onStart() {
 
         super.onStart();
-//        iot = getView().findViewById(R.id.imb_Area02_iot);
-//        thermometer =getView().findViewById(R.id.imb_Area02_thermometer);
+        Network = new Check();
+        handler =null;
         Area02_working = getView().findViewById(R.id.tv_Area02_working);
+        Area02_update = getView().findViewById(R.id.tv_Area02_updatetime);
         Area02_errormessage = getView().findViewById(R.id.tv_Area02_errormessage);
         check = getView().findViewById(R.id.imv_Area02_check);
         onoff = getView().findViewById(R.id.switch_Area02);
+        init();
 
 
-//        iot.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                check.setImageResource(R.drawable.iotact);
-//            }
-//        });
-//
-//        thermometer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                check.setImageResource(R.drawable.thermometer);
-//            }
-//        });
+        onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if(isChecked){
+                    Network.lampStateUpdate("true", lampkey, getContext());
+                }else {
+                    Network.lampStateUpdate("false", lampkey, getContext());
+                }
+            }
+        });
+
 
     }
 
-    private void init(){
-        listview = getView().findViewById(R.id.area01_list);
+
+    private void init() {
+
+        listview = getView().findViewById(R.id.Area02_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         listview.setLayoutManager(layoutManager);
-        ListCheck();
-    }
+        handler = new Handler();
 
-    private View.OnClickListener onClickItem = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            String str = (String) v.getTag();
-            StatusCheck();
-        }
-    };
-
-    private void ListCheck() {//IOT장비 확인
-
-        StringRequest stringRequest = new StringRequest(
-                Request.Method.POST, String.valueOf("http://121.153.155.36:3000/api/addUser"),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        Log.d("volleytest", response.toString());
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            iotlist = new ArrayList<>();
-                            int size = jsonArray.length();
-                            for(int i =0; i<size;i++){
-                                JSONObject row = jsonArray.getJSONObject(i);
-                                iotlist.add(row.getString("iot"));
-                            }
-                            adapter = new Adapter(getContext(), iotlist);
-                            listview.setAdapter(adapter);
-                            ListDecoration listdeco = new ListDecoration();
-                            listview.addItemDecoration(listdeco);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                        Log.d("volleytest", "error : "+error.toString());
-                    }
-                }
-        ) {
+        Thread t =  new Thread(new Runnable() {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id","왜");
-                params.put("pw","치킨");
-                params.put("name","사");
-                params.put("mail","안");
-                params.put("phone","줘");
-                params.put("team","줘");
-
-                Log.d("volleytest", "ok");
-                return params;
-            }
-        };
-
-
-
-        stringRequest.setShouldCache(false); //이전 결과 있어도 새로 요청하여 응답을 보여준다.
-        AppHelper.requestQueue = Volley.newRequestQueue(getContext()); // requestQueue 초기화 필수
-        AppHelper.requestQueue.add(stringRequest);
-
-    }
-    private void StatusCheck() {
-
-        StringRequest stringRequest = new StringRequest(
-                Request.Method.POST, String.valueOf("http://121.153.155.36:3000/api/addUser"),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        Log.d("volleytest", response.toString());
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            iotlist = new ArrayList<>();
-                            int size = jsonArray.length();
-                            for(int i =0; i<size;i++){
-                                JSONObject row = jsonArray.getJSONObject(i);
-                                iotlist.add(row.getString("iot"));
-                            }
-                            adapter = new Adapter(getContext(), iotlist);
-                            listview.setAdapter(adapter);
-                            ListDecoration listdeco = new ListDecoration();
-                            listview.addItemDecoration(listdeco);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        error.printStackTrace();
-                        Log.d("volleytest", "error : "+error.toString());
-                    }
+            public void run() {
+                try {
+                    Network.FindArea("area02", getContext());
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-        ) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("id","왜");
-                params.put("pw","치킨");
-                params.put("name","사");
-                params.put("mail","안");
-                params.put("phone","줘");
-                params.put("team","줘");
 
-                Log.d("volleytest", "ok");
-                return params;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        iotlist = Network.getIotlist();
+                        devicekey = Network.getDevicekey();
+                        Adapter adapter = new Adapter(getContext(), iotlist, devicekey);
+                        listview.setAdapter(adapter);
+                        ListDecoration listdeco = new ListDecoration();
+                        listview.addItemDecoration(listdeco);
+
+                        adapter.setOnClickListener(new Adapter.itemClick() {
+                            @Override
+                            public void onItemClickListener(View v, int position, String iotname, String devicekey) {
+                                if (iotname.equals("lamp")) {
+                                    lampkey = devicekey;
+                                    check.setImageResource(R.drawable.iotact);
+                                    try {
+                                        Network.IoTStatus("area02", devicekey, getContext());
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    lamp = Network.getLamp();
+                                    date = Network.getDate();
+                                    feedback = Network.getFeedback();
+                                    Area02_update.setText(date);
+                                    Area02_errormessage.setText(feedback);
+                                    Area02_working.setText(lamp);
+
+                                } else if (iotname.equals("gas")) {
+                                    check.setImageResource(R.drawable.gas);
+                                    try {
+                                        Network.IoTStatus("area02", devicekey, getContext());
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    gas = Network.getGas();
+                                    date = Network.getDate();
+                                    feedback = Network.getFeedback();
+                                    Area02_update.setText(date);
+                                    Area02_errormessage.setText(feedback);
+                                    Area02_working.setText(gas);
+
+                                } else if (iotname.equals("tmp")) {
+                                    check.setImageResource(R.drawable.thermometer);
+                                    try {
+                                        Network.IoTStatus("area02", devicekey, getContext());
+                                        Thread.sleep(1000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    tmp = Network.getTmp();
+                                    hum = Network.getHum();
+                                    date = Network.getDate();
+                                    feedback = Network.getFeedback();
+                                    Area02_update.setText(date);
+                                    Area02_errormessage.setText(feedback);
+                                    Area02_working.setText(tmp+ " "+hum);
+
+                                }
+                            }
+                        });
+                    }
+                });
+
+
             }
-        };
-
-
-
-        stringRequest.setShouldCache(false); //이전 결과 있어도 새로 요청하여 응답을 보여준다.
-        AppHelper.requestQueue = Volley.newRequestQueue(getContext()); // requestQueue 초기화 필수
-        AppHelper.requestQueue.add(stringRequest);
+        });
+        t.start();
 
     }
+
+
+
+
 
 
 }

@@ -29,10 +29,10 @@ public interface NetWork_Interface {
     void AddIoT(String device, String area, Context context);
     void UpdateIoT(Context context);
     void AddUser(Context context);
-    void lampStateUpdate(String onoff, Context context);
+    void lampStateUpdate(String onoff, String devicekey, Context context);
     void IoTFind(Context context);
-    void FindArea(RecyclerView recyclerView, String Area, Context context);
-    void AreaStatus();
+    void FindArea(String Area, Context context);
+    void IoTStatus(String Area, String devicekey, Context context);
     void Alluser(Context context);
     void Login(Context context);
     void Userinfo(Context context);
@@ -45,13 +45,38 @@ public interface NetWork_Interface {
 
 
     ArrayList<String> iotlist = new ArrayList<String>();
+    ArrayList<String> devicekey = new ArrayList<String>();
+    String date =null;
+    String feedback=null;
+    String gas=null;
+    String lamp=null;
+    String tmp=null;
+    String hum=null;
 
-
-     public synchronized ArrayList<String> getIotlist(){
-//         Log.d("tlqkf", iotlist.get(0));
-         return iotlist;
+    public synchronized ArrayList<String> getIotlist(){
+          return iotlist;
      }
-
+    public synchronized ArrayList<String> getDevicekey(){
+         return devicekey;
+     }
+    public synchronized String getDate(){
+         return date;
+    }
+    public synchronized String getFeedback(){
+         return feedback;
+    }
+    public synchronized String getGas(){
+         return gas;
+    }
+    public synchronized String getLamp(){
+         return lamp;
+    }
+    public synchronized String getTmp(){
+         return tmp;
+    }
+    public synchronized String getHum(){
+         return hum;
+    }
 
     @Override
     public void AddIoT(String device, String area, Context context) {
@@ -177,7 +202,7 @@ public interface NetWork_Interface {
 
 
     @Override
-    public void lampStateUpdate(String onoff, Context context) {
+    public void lampStateUpdate(String onoff, String devicekey, Context context) {
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf(NetworkURL.lampStateUpdate),
                 new Response.Listener<String>() {
@@ -213,8 +238,8 @@ public interface NetWork_Interface {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("devicekey", "");
-                params.put("lamp", "");
+                params.put("devicekey", devicekey);
+                params.put("lamp", onoff);
                 return params;
             }
         };
@@ -283,7 +308,7 @@ public interface NetWork_Interface {
 
 
 
-    public void FindArea(RecyclerView recyclerView, String Area, Context context) {//IOT장비 확인
+    public void FindArea(String Area, Context context) {//IOT장비 확인
 
         StringRequest stringRequest = new StringRequest(
                 Request.Method.POST, String.valueOf(NetworkURL.FindArea),
@@ -313,6 +338,8 @@ public interface NetWork_Interface {
                                     JSONObject row = ja.getJSONObject(i);
                                     JSONObject record =  new JSONObject(row.getString("Record"));
                                     iotlist.add(record.getString("device"));
+                                    devicekey.add(record.getString("devicekey"));
+
                                  }
                          } catch (JSONException e) {
                              e.printStackTrace();
@@ -347,7 +374,80 @@ public interface NetWork_Interface {
 
 
     @Override
-    public void AreaStatus() {
+    public void IoTStatus(String Area, String devicekey, Context context) {
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST, String.valueOf(NetworkURL.FindArea),
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        switch (response) {
+
+                            case "iotFindByArea_Failed_incorrectArgumentsExpecting1"://인자수가 잘못됨
+                                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "iotFindByArea_Failed_notExistUseridOrArea"://존재하지 않는 사용자 또는 지역
+                                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "iotFindByArea_Failed_walletError"://블록체인 wallet오류
+                                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "iotFindByArea_Failed"://문법 또는 서버오류
+                                Toast.makeText(context, "Error", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                try {
+                                    //iotlist = new ArrayList<>();
+                                    JSONArray ja = new JSONArray(response);
+                                    int size = ja.length();
+                                    for (int i = 0; i < size; i++) {
+                                        JSONObject row = ja.getJSONObject(i);
+                                        JSONObject record =  new JSONObject(row.getString("Record"));
+                                        if(devicekey.equals(record.getString("devicekey"))){
+                                            feedback = record.getString("feedback");
+                                            date = record.getString("date");
+                                            if(record.getString("device").equals("gas")){
+                                                gas = record.getString("gas");
+                                                break;
+                                            }else if (record.getString("device").equals("lamp")){
+                                                lamp = record.getString("lamp");
+                                                break;
+                                            }else if(record.getString("device").equals("tmp")){
+                                                tmp =record.getString("tmp");
+                                                hum = record.getString("hum");
+                                                break;
+                                            }
+                                        }
+
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        error.printStackTrace();
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("userId", "user");
+                params.put("area", Area);
+                return params;
+            }
+        };
+
+
+        stringRequest.setShouldCache(false); //이전 결과 있어도 새로 요청하여 응답을 보여준다.
+        AppHelper.requestQueue = Volley.newRequestQueue(context); // requestQueue 초기화 필수
+        AppHelper.requestQueue.add(stringRequest);
+
+
 
     }
 

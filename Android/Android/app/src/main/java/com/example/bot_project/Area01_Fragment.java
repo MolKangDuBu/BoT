@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -57,6 +58,14 @@ public class Area01_Fragment extends Fragment {
     private RecyclerView listview;
     private Adapter adapter;
     private ArrayList<String> iotlist;
+    private ArrayList<String> devicekey;
+    private String lampkey;
+    private String lamp;
+    private String tmp;
+    private String hum;
+    private String date;
+    private String feedback;
+    private String gas;
     private Check Network;
     public Handler handler;
 
@@ -80,6 +89,17 @@ public class Area01_Fragment extends Fragment {
         init();
 
 
+        onoff.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    if(isChecked){
+                        Network.lampStateUpdate("true", lampkey, getContext());
+                    }else {
+                        Network.lampStateUpdate("false", lampkey, getContext());
+                    }
+            }
+        });
+
 
     }
 
@@ -90,36 +110,78 @@ public class Area01_Fragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         listview.setLayoutManager(layoutManager);
         handler = new Handler();
-//       Network.FindArea(listview,"area01", getContext());
 
        Thread t =  new Thread(new Runnable() {
             @Override
             public void run() {
+                try {
+                    Network.FindArea("area01", getContext());
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-                    Network.FindArea(listview, "area01", getContext());
-
-
-                    handler.post(new Runnable() {
+                handler.post(new Runnable() {
                         @Override
                         public void run() {
 
                             iotlist = Network.getIotlist();
-
-                            Adapter adapter = new Adapter(getContext(), iotlist);
+                            devicekey = Network.getDevicekey();
+                            Adapter adapter = new Adapter(getContext(), iotlist, devicekey);
                             listview.setAdapter(adapter);
                             ListDecoration listdeco = new ListDecoration();
                             listview.addItemDecoration(listdeco);
 
                             adapter.setOnClickListener(new Adapter.itemClick() {
                                 @Override
-                                public void onItemClickListener(View v, int position, String iotname) {
+                                public void onItemClickListener(View v, int position, String iotname, String devicekey) {
                                     if (iotname.equals("lamp")) {
+                                        lampkey = devicekey;
                                         check.setImageResource(R.drawable.iotact);
+                                        try {
+                                            Network.IoTStatus("area01", devicekey, getContext());
+                                            Thread.sleep(1000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        lamp = Network.getLamp();
+                                        date = Network.getDate();
+                                        feedback = Network.getFeedback();
+                                        Area01_update.setText(date);
+                                        Area01_errormessage.setText(feedback);
+                                        Area01_working.setText(lamp);
+
                                     } else if (iotname.equals("gas")) {
                                         check.setImageResource(R.drawable.gas);
+                                        try {
+                                            Network.IoTStatus("area01", devicekey, getContext());
+                                            Thread.sleep(1000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        gas = Network.getGas();
+                                        date = Network.getDate();
+                                        feedback = Network.getFeedback();
+                                        Area01_update.setText(date);
+                                        Area01_errormessage.setText(feedback);
+                                        Area01_working.setText(gas);
 
                                     } else if (iotname.equals("tmp")) {
                                         check.setImageResource(R.drawable.thermometer);
+                                        try {
+                                            Network.IoTStatus("area01", devicekey, getContext());
+                                            Thread.sleep(1000);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        tmp = Network.getTmp();
+                                        hum = Network.getHum();
+                                        date = Network.getDate();
+                                        feedback = Network.getFeedback();
+                                        Area01_update.setText(date);
+                                        Area01_errormessage.setText(feedback);
+                                        Area01_working.setText(tmp+ " "+hum);
+
                                     }
                                 }
                             });

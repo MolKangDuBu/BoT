@@ -19,14 +19,15 @@ import java.util.ArrayList;
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 
     private  ArrayList<String> iotlist;
+    private  ArrayList<String> devicekey;
     private Context context;
     private  View.OnClickListener onClickListener;
     private itemClick itemclick = null;
 
-    public Adapter(Context context, ArrayList<String> itemlist){
+    public Adapter(Context context, ArrayList<String> itemlist, ArrayList<String>devicekey){
         this.context = context;
         this.iotlist =itemlist;
-
+        this.devicekey = devicekey;
     }
 
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
@@ -41,13 +42,13 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             super(itemView);
             iotimage = itemView.findViewById(R.id.item_btn);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+         itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int pos = getAdapterPosition();
                     if(pos != RecyclerView.NO_POSITION){
                         if(itemclick != null){
-                            itemclick.onItemClickListener(v,pos,iotlist.get(pos));
+                            itemclick.onItemClickListener(v,pos,iotlist.get(pos), devicekey.get(pos));
                         }
                     }
                 }
@@ -60,7 +61,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull Adapter.ViewHolder holder, int position) {
         String item = iotlist.get(position);
-        Log.d("tlqkf", "asdasd");
+
         if(item.equals("lamp")){
             holder.iotimage.setImageResource(R.drawable.iotact);
 
@@ -93,7 +94,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     }
 
     public interface itemClick{
-        void onItemClickListener(View v, int position, String iotname);
+        void onItemClickListener(View v, int position, String iotname, String devicekey);
     }
 
 
